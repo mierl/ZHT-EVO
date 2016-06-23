@@ -43,8 +43,21 @@
 #include "cpp_zhtclient.h"
 #include "ZHTUtil.h"
 
+#include <capnp/message.h>
+#include <capnp/serialize.h>
+#include <capnp/serialize-packed.h>
+#include <capnp/schema.h>
+#include <capnp/generated-header-support.h>
+#include "zht_evo.capnp.h"
+
+
+
 using namespace std;
 using namespace iit::datasys::zht::dm;
+using namespace capnp;
+//using namespace kj;
+using namespace schema;
+
 
 ZHTClient zc;
 int numOfOps = -1;
@@ -76,6 +89,24 @@ void init_packages() {
 		package.add_listitem(HashUtil::randomString(8192));
 		*/
 		pkgList.push_back(package.SerializeAsString());
+	}
+}
+
+void init_packages_capn() {
+
+	for (int i = 0; i < numOfOps; i++) {
+		::capnp::MallocMessageBuilder message;
+		KVRequest::Builder req = message.initRoot<KVRequest>();
+
+		req.setKey(HashUtil::randomString(keyLen).c_str());
+		req.setVal(HashUtil::randomString(valLen).c_str());
+
+		string testStr = string(req.toString().flatten().cStr());
+		cout << "testStr = req.toString().flatten(): " << testStr<<endl;
+
+
+
+		pkgList.push_back(testStr);
 	}
 }
 
@@ -245,17 +276,17 @@ int benchmark(string &zhtConf, string &neighborConf) {
 		return -1;
 	}
 
-	init_packages();
+	init_packages_capn();
 
-	benchmarkInsert();
-
-	benchmarkLookup();
-
-	benchmarkAppend();
-
-	benchmarkRemove();
-
-	zc.teardown();
+//	benchmarkInsert();
+//
+//	benchmarkLookup();
+//
+//	benchmarkAppend();
+//
+//	benchmarkRemove();
+//
+//	zc.teardown();
 
 	return 0;
 
