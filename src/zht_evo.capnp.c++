@@ -5,9 +5,9 @@
 
 namespace capnp {
 namespace schemas {
-static const ::capnp::_::AlignedData<52> b_818082cae9b8cfdc = {
+static const ::capnp::_::AlignedData<52> b_a162247997eba97b = {
   {   0,   0,   0,   0,   5,   0,   6,   0,
-    220, 207, 184, 233, 202, 130, 128, 129,
+    123, 169, 235, 151, 121,  36,  98, 161,
      14,   0,   0,   0,   1,   0,   1,   0,
     184, 105,  59, 183,  26, 192, 140, 218,
       1,   0,   7,   0,   0,   0,   0,   0,
@@ -19,7 +19,7 @@ static const ::capnp::_::AlignedData<52> b_818082cae9b8cfdc = {
       0,   0,   0,   0,   0,   0,   0,   0,
       0,   0,   0,   0,   0,   0,   0,   0,
     122, 104, 116,  95, 101, 118, 111,  46,
-     99,  97, 112, 110, 112,  58,  90,  85,
+     99,  97, 112, 110, 112,  58,  90,  69,
      77, 101, 115, 115,  97, 103, 101,   0,
       0,   0,   0,   0,   1,   0,   1,   0,
       8,   0,   0,   0,   3,   0,   4,   0,
@@ -59,16 +59,16 @@ static const ::capnp::_::AlignedData<52> b_818082cae9b8cfdc = {
       0,   0,   0,   0,   0,   0,   0,   0,
       0,   0,   0,   0,   0,   0,   0,   0, }
 };
-::capnp::word const* const bp_818082cae9b8cfdc = b_818082cae9b8cfdc.words;
+::capnp::word const* const bp_a162247997eba97b = b_a162247997eba97b.words;
 #if !CAPNP_LITE
-static const ::capnp::_::RawSchema* const d_818082cae9b8cfdc[] = {
+static const ::capnp::_::RawSchema* const d_a162247997eba97b[] = {
   &s_80867c875d56d932,
 };
-static const uint16_t m_818082cae9b8cfdc[] = {1, 0};
-static const uint16_t i_818082cae9b8cfdc[] = {0, 1};
-const ::capnp::_::RawSchema s_818082cae9b8cfdc = {
-  0x818082cae9b8cfdc, b_818082cae9b8cfdc.words, 52, d_818082cae9b8cfdc, m_818082cae9b8cfdc,
-  1, 2, i_818082cae9b8cfdc, nullptr, nullptr, { &s_818082cae9b8cfdc, nullptr, nullptr, 0, 0, nullptr }
+static const uint16_t m_a162247997eba97b[] = {1, 0};
+static const uint16_t i_a162247997eba97b[] = {0, 1};
+const ::capnp::_::RawSchema s_a162247997eba97b = {
+  0xa162247997eba97b, b_a162247997eba97b.words, 52, d_a162247997eba97b, m_a162247997eba97b,
+  1, 2, i_a162247997eba97b, nullptr, nullptr, { &s_a162247997eba97b, nullptr, nullptr, 0, 0, nullptr }
 };
 #endif  // !CAPNP_LITE
 static const ::capnp::_::AlignedData<62> b_80867c875d56d932 = {
@@ -149,16 +149,18 @@ const ::capnp::_::RawSchema s_80867c875d56d932 = {
 
 // =======================================================================================
 
+namespace capnp {
+namespace schema {
 
-// ZUMessage
+// ZEMessage
 #ifndef _MSC_VER
-constexpr uint16_t ZUMessage::_capnpPrivate::dataWordSize;
-constexpr uint16_t ZUMessage::_capnpPrivate::pointerCount;
+constexpr uint16_t ZEMessage::_capnpPrivate::dataWordSize;
+constexpr uint16_t ZEMessage::_capnpPrivate::pointerCount;
 #endif
 #if !CAPNP_LITE
-constexpr ::capnp::Kind ZUMessage::_capnpPrivate::kind;
-constexpr ::capnp::_::RawSchema const* ZUMessage::_capnpPrivate::schema;
-constexpr ::capnp::_::RawBrandedSchema const* ZUMessage::_capnpPrivate::brand;
+constexpr ::capnp::Kind ZEMessage::_capnpPrivate::kind;
+constexpr ::capnp::_::RawSchema const* ZEMessage::_capnpPrivate::schema;
+constexpr ::capnp::_::RawBrandedSchema const* ZEMessage::_capnpPrivate::brand;
 #endif  // !CAPNP_LITE
 
 // KVRequest
@@ -173,4 +175,6 @@ constexpr ::capnp::_::RawBrandedSchema const* KVRequest::_capnpPrivate::brand;
 #endif  // !CAPNP_LITE
 
 
+}  // namespace
+}  // namespace
 

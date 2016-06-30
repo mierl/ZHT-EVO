@@ -1,6 +1,9 @@
 @0xda8cc01ab73b69b8;
 
-struct ZUMessage {
+using Cxx = import "/capnp/c++.capnp";
+$Cxx.namespace("capnp::schema");
+
+struct ZEMessage {
 	nRequest @0 :UInt16; # number of requests in this message
 	listMsg @1 :List(KVRequest); # for batching and collection operations.
 
