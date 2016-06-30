@@ -39,6 +39,8 @@
 #include <pthread.h>
 #include <stdlib.h>
 
+#include "zht_evo.capnp.h"
+
 using namespace std;
 using namespace iit::datasys::zht::dm;
 

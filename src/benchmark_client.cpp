@@ -49,7 +49,7 @@
 #include <capnp/schema.h>
 #include <capnp/generated-header-support.h>
 #include "zht_evo.capnp.h"
-
+#include "evo_util.h"
 
 
 using namespace std;
@@ -95,18 +95,45 @@ void init_packages() {
 void init_packages_capn() {
 
 	for (int i = 0; i < numOfOps; i++) {
-		::capnp::MallocMessageBuilder message;
-		KVRequest::Builder req = message.initRoot<KVRequest>();
+		//::capnp::MallocMessageBuilder message;
+		::capnp::MallocMessageBuilder* messageZU = new capnp::MallocMessageBuilder;
+		ZEMessage::Builder zemBuilder = messageZU->initRoot<ZEMessage>();
+		//KVRequest::Builder reqBuilder = message.initRoot<KVRequest>();
+		int nReq = 2;
+		::capnp::List<KVRequest>::Builder reqList = zemBuilder.initListMsg(nReq);
+		KVRequest::Builder req1 = reqList[0];
+		KVRequest::Builder req2 = reqList[1];
 
-		req.setKey(HashUtil::randomString(keyLen).c_str());
-		req.setVal(HashUtil::randomString(valLen).c_str());
+		//reqBuilder.setKey(HashUtil::randomString(keyLen).c_str());
+		//reqBuilder.setVal(HashUtil::randomString(valLen).c_str());
 
-		string testStr = string(req.toString().flatten().cStr());
-		cout << "testStr = req.toString().flatten(): " << testStr<<endl;
+		req1.setKey(HashUtil::randomString(keyLen).c_str());
+		req1.setVal(HashUtil::randomString(valLen).c_str());
+		req2.setKey(HashUtil::randomString(keyLen).c_str());
+		req2.setVal(HashUtil::randomString(valLen).c_str());
+		//string testStr = string(reqBuilder.toString().flatten().cStr());
+		//cout << "testStr = req.toString().flatten(): " << testStr<<endl;
+
+		string packStr = string(zemBuilder.toString().flatten().cStr());
+
+//		::capnp::writePackedMessage(pipe, reqBuilder);
+//		::capnp::PackedMessageReader reqReader(pipe);//testStr.c_str()
+//		KVRequest::Reader reqRead();
+		char* capnStr = NULL;
+		unsigned long strLen = 0;
+		zeMsgToCStr(messageZU, capnStr, strLen);
+
+		ZEMessage::Reader packReader = getZEMsgReader(capnStr, strLen);
+
+		for(KVRequest::Reader req : packReader.getListMsg()){
+			cout << "req key = " << string(req.getKey()) << "; req val = "<< string(req.getVal())<<endl;
+		}
 
 
+		// now get data out of packStr
+//		cout<< "Read from a pack: key = " << reqRead.getKey() << ", and val = " << reqRead.getVal();
 
-		pkgList.push_back(testStr);
+		//pkgList.push_back(testStr);
 	}
 }
 

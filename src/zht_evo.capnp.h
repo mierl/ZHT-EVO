@@ -14,22 +14,24 @@
 namespace capnp {
 namespace schemas {
 
-CAPNP_DECLARE_SCHEMA(818082cae9b8cfdc);
+CAPNP_DECLARE_SCHEMA(a162247997eba97b);
 CAPNP_DECLARE_SCHEMA(80867c875d56d932);
 
 }  // namespace schemas
 }  // namespace capnp
 
+namespace capnp {
+namespace schema {
 
-struct ZUMessage {
-  ZUMessage() = delete;
+struct ZEMessage {
+  ZEMessage() = delete;
 
   class Reader;
   class Builder;
   class Pipeline;
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(818082cae9b8cfdc, 1, 1)
+    CAPNP_DECLARE_STRUCT_HEADER(a162247997eba97b, 1, 1)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand = &schema->defaultBrand;
     #endif  // !CAPNP_LITE
@@ -53,9 +55,9 @@ struct KVRequest {
 
 // =======================================================================================
 
-class ZUMessage::Reader {
+class ZEMessage::Reader {
 public:
-  typedef ZUMessage Reads;
+  typedef ZEMessage Reads;
 
   Reader() = default;
   inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
@@ -73,7 +75,7 @@ public:
   inline  ::uint16_t getNRequest() const;
 
   inline bool hasListMsg() const;
-  inline  ::capnp::List< ::KVRequest>::Reader getListMsg() const;
+  inline  ::capnp::List< ::capnp::schema::KVRequest>::Reader getListMsg() const;
 
 private:
   ::capnp::_::StructReader _reader;
@@ -87,9 +89,9 @@ private:
   friend class ::capnp::Orphanage;
 };
 
-class ZUMessage::Builder {
+class ZEMessage::Builder {
 public:
-  typedef ZUMessage Builds;
+  typedef ZEMessage Builds;
 
   Builder() = delete;  // Deleted to discourage incorrect usage.
                        // You can explicitly initialize to nullptr instead.
@@ -107,11 +109,11 @@ public:
   inline void setNRequest( ::uint16_t value);
 
   inline bool hasListMsg();
-  inline  ::capnp::List< ::KVRequest>::Builder getListMsg();
-  inline void setListMsg( ::capnp::List< ::KVRequest>::Reader value);
-  inline  ::capnp::List< ::KVRequest>::Builder initListMsg(unsigned int size);
-  inline void adoptListMsg(::capnp::Orphan< ::capnp::List< ::KVRequest>>&& value);
-  inline ::capnp::Orphan< ::capnp::List< ::KVRequest>> disownListMsg();
+  inline  ::capnp::List< ::capnp::schema::KVRequest>::Builder getListMsg();
+  inline void setListMsg( ::capnp::List< ::capnp::schema::KVRequest>::Reader value);
+  inline  ::capnp::List< ::capnp::schema::KVRequest>::Builder initListMsg(unsigned int size);
+  inline void adoptListMsg(::capnp::Orphan< ::capnp::List< ::capnp::schema::KVRequest>>&& value);
+  inline ::capnp::Orphan< ::capnp::List< ::capnp::schema::KVRequest>> disownListMsg();
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -123,9 +125,9 @@ private:
 };
 
 #if !CAPNP_LITE
-class ZUMessage::Pipeline {
+class ZEMessage::Pipeline {
 public:
-  typedef ZUMessage Pipelines;
+  typedef ZEMessage Pipelines;
 
   inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
@@ -237,49 +239,49 @@ private:
 
 // =======================================================================================
 
-inline  ::uint16_t ZUMessage::Reader::getNRequest() const {
+inline  ::uint16_t ZEMessage::Reader::getNRequest() const {
   return _reader.getDataField< ::uint16_t>(
       0 * ::capnp::ELEMENTS);
 }
 
-inline  ::uint16_t ZUMessage::Builder::getNRequest() {
+inline  ::uint16_t ZEMessage::Builder::getNRequest() {
   return _builder.getDataField< ::uint16_t>(
       0 * ::capnp::ELEMENTS);
 }
-inline void ZUMessage::Builder::setNRequest( ::uint16_t value) {
+inline void ZEMessage::Builder::setNRequest( ::uint16_t value) {
   _builder.setDataField< ::uint16_t>(
       0 * ::capnp::ELEMENTS, value);
 }
 
-inline bool ZUMessage::Reader::hasListMsg() const {
+inline bool ZEMessage::Reader::hasListMsg() const {
   return !_reader.getPointerField(0 * ::capnp::POINTERS).isNull();
 }
-inline bool ZUMessage::Builder::hasListMsg() {
+inline bool ZEMessage::Builder::hasListMsg() {
   return !_builder.getPointerField(0 * ::capnp::POINTERS).isNull();
 }
-inline  ::capnp::List< ::KVRequest>::Reader ZUMessage::Reader::getListMsg() const {
-  return ::capnp::_::PointerHelpers< ::capnp::List< ::KVRequest>>::get(
+inline  ::capnp::List< ::capnp::schema::KVRequest>::Reader ZEMessage::Reader::getListMsg() const {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::capnp::schema::KVRequest>>::get(
       _reader.getPointerField(0 * ::capnp::POINTERS));
 }
-inline  ::capnp::List< ::KVRequest>::Builder ZUMessage::Builder::getListMsg() {
-  return ::capnp::_::PointerHelpers< ::capnp::List< ::KVRequest>>::get(
+inline  ::capnp::List< ::capnp::schema::KVRequest>::Builder ZEMessage::Builder::getListMsg() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::capnp::schema::KVRequest>>::get(
       _builder.getPointerField(0 * ::capnp::POINTERS));
 }
-inline void ZUMessage::Builder::setListMsg( ::capnp::List< ::KVRequest>::Reader value) {
-  ::capnp::_::PointerHelpers< ::capnp::List< ::KVRequest>>::set(
+inline void ZEMessage::Builder::setListMsg( ::capnp::List< ::capnp::schema::KVRequest>::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::capnp::schema::KVRequest>>::set(
       _builder.getPointerField(0 * ::capnp::POINTERS), value);
 }
-inline  ::capnp::List< ::KVRequest>::Builder ZUMessage::Builder::initListMsg(unsigned int size) {
-  return ::capnp::_::PointerHelpers< ::capnp::List< ::KVRequest>>::init(
+inline  ::capnp::List< ::capnp::schema::KVRequest>::Builder ZEMessage::Builder::initListMsg(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::capnp::schema::KVRequest>>::init(
       _builder.getPointerField(0 * ::capnp::POINTERS), size);
 }
-inline void ZUMessage::Builder::adoptListMsg(
-    ::capnp::Orphan< ::capnp::List< ::KVRequest>>&& value) {
-  ::capnp::_::PointerHelpers< ::capnp::List< ::KVRequest>>::adopt(
+inline void ZEMessage::Builder::adoptListMsg(
+    ::capnp::Orphan< ::capnp::List< ::capnp::schema::KVRequest>>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::List< ::capnp::schema::KVRequest>>::adopt(
       _builder.getPointerField(0 * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::capnp::List< ::KVRequest>> ZUMessage::Builder::disownListMsg() {
-  return ::capnp::_::PointerHelpers< ::capnp::List< ::KVRequest>>::disown(
+inline ::capnp::Orphan< ::capnp::List< ::capnp::schema::KVRequest>> ZEMessage::Builder::disownListMsg() {
+  return ::capnp::_::PointerHelpers< ::capnp::List< ::capnp::schema::KVRequest>>::disown(
       _builder.getPointerField(0 * ::capnp::POINTERS));
 }
 
@@ -361,5 +363,7 @@ inline void KVRequest::Builder::setOpcode( ::uint8_t value) {
       0 * ::capnp::ELEMENTS, value);
 }
 
+}  // namespace
+}  // namespace
 
 #endif  // CAPNP_INCLUDED_da8cc01ab73b69b8_

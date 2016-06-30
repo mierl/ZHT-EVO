@@ -37,6 +37,9 @@
 #include <string>
 #include <queue>
 #include "TSafeQueue-impl.h"
+
+#include "zht_evo.capnp.h"
+
 using namespace std;
 using namespace iit::cs550::finalproj;
 
