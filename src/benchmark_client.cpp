@@ -70,73 +70,35 @@ void init_packages() {
 		ZPack package;
 		package.set_key(HashUtil::randomString(keyLen));
 		package.set_val(HashUtil::randomString(valLen));
-		//package.set_virtualpath(HashUtil::randomString(lenString)); //as key
-		//package.set_isdir(true);
-		//package.set_opcode();
 
-		//package.set_replicanum(5); //orginal--Note: never let it be nagative!!!
-
-		/*
-		 package.set_realfullpath(
-		 "Some-Real-longer-longer-and-longer-Paths--------");
-		 package.add_listitem("item-----1");
-		 package.add_listitem("item-----2");
-		 package.add_listitem("item-----3");
-		 package.add_listitem("item-----4");
-		 package.add_listitem("item-----5");
-		 package.add_listitem(HashUtil::randomString(8192));
-		 */
 		pkgList.push_back(package.SerializeAsString());
 	}
 }
 
 void init_packages_capn() {
+
 	numOfOps = 10;
 
 	vector<Request> reqList;
 
 	for (int i = 0; i < numOfOps; i++) {
+
 		Request newReq;
 		newReq.key = string(HashUtil::randomString(keyLen));
 		newReq.val = string(HashUtil::randomString(valLen));
 		newReq.opCode = string("001");
-		reqList.push_back(newReq);
 
-//		//::capnp::MallocMessageBuilder message;
-//		::capnp::MallocMessageBuilder* messageZU =
-//				new capnp::MallocMessageBuilder;
-//		ZEMessage::Builder zemBuilder = messageZU->initRoot<ZEMessage>();
-//		//KVRequest::Builder reqBuilder = message.initRoot<KVRequest>();
-//		int nReq = 2;
-//		::capnp::List<KVRequest>::Builder reqList = zemBuilder.initListMsg(
-//				nReq);
-//		KVRequest::Builder req1 = reqList[0];
-//		KVRequest::Builder req2 = reqList[1];
-//
-//		req1.setKey(HashUtil::randomString(keyLen).c_str());
-//		req1.setVal(HashUtil::randomString(valLen).c_str());
-//		req2.setKey(HashUtil::randomString(keyLen).c_str());
-//		req2.setVal(HashUtil::randomString(valLen).c_str());
-//
-//
-//		// now get data out of packStr
-////		cout<< "Read from a pack: key = " << reqRead.getKey() << ", and val = " << reqRead.getVal();
-//
-//		//pkgList.push_back(testStr);
+		reqList.push_back(newReq);
 	}
 
-	::capnp::MallocMessageBuilder* messageZU =  makeMsgPack(reqList);
+	::capnp::MallocMessageBuilder* messageZU = makeMsgPack(reqList);
+
 	void* capnStr = NULL;
 	unsigned long strLen = 0;
+
 	msgToBuff(messageZU, capnStr, strLen);
 
 	ZEMessage::Reader packReader = getZEMsgReader(capnStr, strLen);
-
-//		for (KVRequest::Reader req : packReader.getListMsg()) {
-//			//cout << "req key = " << string(req.getKey()) << "; req val = "<< string(req.getVal())<<endl;
-//			cout << "capn buf size = " << strLen << endl;
-//			cout << "capn buf strlen() size = " << sizeof(capnStr) << endl;
-//		}
 
 	vector<Request> rtList = extrReqVector(capnStr, strLen);
 
