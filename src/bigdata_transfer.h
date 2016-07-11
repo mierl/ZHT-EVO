@@ -32,7 +32,7 @@
 #define BIGDATA_TRANSFER_H_
 
 #include "zpack.pb.h"
-
+#include "Util.h"
 #include <sys/types.h>
 #include <string>
 #include <vector>

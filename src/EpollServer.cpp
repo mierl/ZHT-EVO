@@ -357,8 +357,12 @@ void EpollServer::serve() {
 	while (1) {
 
 		int n, i;
-
+		double start0 = TimeUtil::getTime_msec();
+		double end0 = TimeUtil::getTime_msec();
+		start0 = TimeUtil::getTime_msec();
 		n = epoll_wait(efd, events, MAX_EVENTS, -1);
+		end0 = TimeUtil::getTime_msec();
+		//cout<<"epoll_wait time: "<< end0 - start0 <<" ms. efd = "<< efd <<", epoll_wait() = "<<n<<endl;
 
 		for (i = 0; i < n; i++) {
 
@@ -379,7 +383,7 @@ void EpollServer::serve() {
 					/* We have a notification on the listening socket, which
 					 means one or more incoming connections. */
 					while (1) {
-
+						cout<<"New connection: edata->fd() = "<< edata->fd() <<", sfd = "<< sfd<<endl;
 						sockaddr *in_addr = (sockaddr *) calloc(1,
 								sizeof(struct sockaddr));
 						socklen_t in_len = sizeof(struct sockaddr);
@@ -427,10 +431,13 @@ void EpollServer::serve() {
 						}
 
 						reuseSock(infd);
-
+						start0 = TimeUtil::getTime_msec();
 						event.data.ptr = new EpollData(infd, in_addr);
 						event.events = EPOLLIN | EPOLLET;
 						s = epoll_ctl(efd, EPOLL_CTL_ADD, infd, &event);
+						end0 = TimeUtil::getTime_msec();
+						cout<<"------ epoll_ctl time: "<< end0 - start0 <<" ms. add to events"<<endl;
+
 						if (s == -1) {
 
 							free(in_addr);
@@ -439,7 +446,7 @@ void EpollServer::serve() {
 						}
 					}
 					continue;
-				} else {
+				} else {//_tcp != true, UDP
 
 					int done = 0;
 
@@ -451,8 +458,17 @@ void EpollServer::serve() {
 
 						sockaddr fromaddr;
 						socklen_t sender_len = sizeof(struct sockaddr);
+
+
+							double start, end;
+							start = TimeUtil::getTime_msec();
+
 						ssize_t count = recvfrom(edata->fd(), buf, sizeof buf,
 								0, &fromaddr, &sender_len);
+
+							end = TimeUtil::getTime_msec();
+							//cout<<"Big msg UDP: 2nd while loop: EpollServer recvfrom() "<<count <<" bytes cost "<< end - start <<" ms."<<endl;
+
 
 						if (count == -1) {
 
@@ -512,7 +528,7 @@ void EpollServer::serve() {
 					 }*/
 				}
 
-			} else {
+			} else {//sfd != edata->fd()
 
 				if (_tcp == true) {
 
@@ -521,16 +537,20 @@ void EpollServer::serve() {
 					 completely, as we are running in edge-triggered mode
 					 and won't get a notification again for the same
 					 data. */
+					//cout<<"not a new connection, before while loop"<<endl;
 					int done = 0;
 
 					while (1) {
-
+						//cout<<"not a new connection, in while loop"<<endl;
 						char buf[Env::BUF_SIZE];
 						memset(buf, 0, sizeof(buf));
 						//char *buf = (char*) calloc(Env::BUF_SIZE, sizeof(char));
 
+						double start, end;
+						start = TimeUtil::getTime_msec();
 						ssize_t count = recv(edata->fd(), buf, sizeof(buf), 0);
-
+						end = TimeUtil::getTime_msec();
+						//cout<<"Non-new, recv() "<<count <<" bytes cost "<< end - start <<" ms. edata->fd() = "<< edata->fd() <<", sfd = "<< sfd<<endl;
 						if (count == -1) {
 
 							/* If errno == EAGAIN, that means we have read all
@@ -557,6 +577,8 @@ void EpollServer::serve() {
 							break;
 						} else {
 
+
+							start = TimeUtil::getTime_msec();
 #ifdef BIG_MSG
 							bool ready = false;
 							string bd = pbrb->getBdStr(sfd, buf, count, ready);
@@ -585,6 +607,9 @@ void EpollServer::serve() {
 									*edata->sender());
 #endif
 #endif
+							end = TimeUtil::getTime_msec();
+							//cout<<"BIG_MSG, else loop,  cost "<< end - start <<" ms." <<endl;
+
 						}
 
 						//memset(buf, 0, sizeof(buf));
@@ -598,6 +623,7 @@ void EpollServer::serve() {
 
 						/* Closing the descriptor will make epoll remove it
 						 from the set of descriptors which are monitored. */
+						//cout<<"-------done, closing edata->fd(), fd = "<<edata->fd()<<endl;
 						close(edata->fd());
 						delete edata;
 					}

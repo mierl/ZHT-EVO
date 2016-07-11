@@ -62,6 +62,9 @@ ZHTClient::~ZHTClient() {
 
 int ZHTClient::init(const string& zhtConf, const string& neighborConf) {
 
+	this->nameSpaceID = "";
+	this->mode = 0;
+
 	ConfHandler::initConf(zhtConf, neighborConf);
 
 	_msg_maxsize = Env::get_msg_maxsize();
@@ -80,6 +83,17 @@ int ZHTClient::init(const char *zhtConf, const char *neighborConf) {
 	string sneighborconf(neighborConf);
 
 	int rc = init(szhtconf, sneighborconf);
+
+	return rc;
+}
+
+int ZHTClient::initEvo(const string& zhtConf, const string& neighborConf,
+		const string nameSpaceID, int mode) {
+
+	int rc = init(zhtConf, neighborConf);
+
+	this->nameSpaceID = nameSpaceID;
+	this->mode = mode;
 
 	return rc;
 }
@@ -272,9 +286,9 @@ int ZHTClient::state_change_callback(const char *key, const char *expeded_val,
 	return rc;
 }
 
-string ZHTClient::commonOpInternal(const string &opcode, const string &key,
-		const string &val, const string &val2, string &result, int lease) {
-
+string ZHTClient::commonOpInternalOriginal(const string &opcode,
+		const string &key, const string &val, const string &val2,
+		string &result, int lease) {
 	ZPack zpack;
 	zpack.set_opcode(opcode); //"001": lookup, "002": remove, "003": insert, "004": append, "005", compare_swap
 	zpack.set_replicanum(3); // Reserved but not used at this point.
@@ -315,10 +329,20 @@ string ZHTClient::commonOpInternal(const string &opcode, const string &key,
 
 	char *buf = (char*) calloc(_msg_maxsize, sizeof(char));
 	size_t msz = _msg_maxsize;
+	//	double start = 0;
+	//		double end = 0;
+	//		start = TimeUtil::getTime_msec();
+	//	/*send to and receive from*/
+	//
+	//
+	//		int msgLen = msg.length() -32;//same length msg, but no protobuf structure.
+	//		msg = HashUtil::randomString(msgLen);
+	//		//cout<<"msg = "<< msg <<endl;
 
-	/*send to and receive from*/
 	_proxy->sendrecv(msg.c_str(), msg.size(), buf, msz);
-
+	//end = TimeUtil::getTime_msec();
+	int transLen = msg.size();
+	//cout<<"transfer (and receive)"<<transLen <<" bytes cost "<< end - start <<" ms."<<endl;
 	/*...parse status and result*/
 	string sstatus;
 
@@ -332,9 +356,36 @@ string ZHTClient::commonOpInternal(const string &opcode, const string &key,
 		result = srecv.substr(3); //the left, if any, is lookup result or second-try zpack
 		sstatus = srecv.substr(0, 3); //status returned, the first three chars, like 001, -98...
 	}
-
+	//cout<<"ZHTClient::commonOpInternal srecv = "<<srecv<<endl;
 	free(buf);
 	return sstatus;
+
+}
+string ZHTClient::commonOpInternalEVO(const string &opcode, const string &key,
+		const string &val, string &result){
+	//TODO:
+	//- Make a capn structure for a pack of requests and assign them: single request first
+	//- Make a void* buf from the structure.
+
+
+	//_proxy->sendrecv();
+	return Const::ASC_REC_SUCC;
+
+}
+string ZHTClient::commonOpInternal(const string &opcode, const string &key,
+		const string &val, const string &val2, string &result, int lease) {
+	if (0 == this->mode) {
+		cout<<"client mode = 0"<<endl;
+		return commonOpInternalOriginal(opcode, key, val, val2, result, lease);
+
+	} else if (1 == this->mode) { //evo mode: single req
+
+		cout<<"client mode = 1, evo mode, single request!"<<endl;
+		return commonOpInternalEVO(opcode, key, val, result);
+
+	}
+
+	return string("");
 }
 
 int ZHTClient::teardown() {

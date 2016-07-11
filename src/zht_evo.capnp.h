@@ -46,7 +46,7 @@ struct KVRequest {
   class Pipeline;
 
   struct _capnpPrivate {
-    CAPNP_DECLARE_STRUCT_HEADER(80867c875d56d932, 1, 2)
+    CAPNP_DECLARE_STRUCT_HEADER(80867c875d56d932, 0, 3)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand = &schema->defaultBrand;
     #endif  // !CAPNP_LITE
@@ -164,7 +164,8 @@ public:
   inline bool hasVal() const;
   inline  ::capnp::Text::Reader getVal() const;
 
-  inline  ::uint8_t getOpcode() const;
+  inline bool hasOpcode() const;
+  inline  ::capnp::Text::Reader getOpcode() const;
 
 private:
   ::capnp::_::StructReader _reader;
@@ -208,8 +209,12 @@ public:
   inline void adoptVal(::capnp::Orphan< ::capnp::Text>&& value);
   inline ::capnp::Orphan< ::capnp::Text> disownVal();
 
-  inline  ::uint8_t getOpcode();
-  inline void setOpcode( ::uint8_t value);
+  inline bool hasOpcode();
+  inline  ::capnp::Text::Builder getOpcode();
+  inline void setOpcode( ::capnp::Text::Reader value);
+  inline  ::capnp::Text::Builder initOpcode(unsigned int size);
+  inline void adoptOpcode(::capnp::Orphan< ::capnp::Text>&& value);
+  inline ::capnp::Orphan< ::capnp::Text> disownOpcode();
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -349,18 +354,36 @@ inline ::capnp::Orphan< ::capnp::Text> KVRequest::Builder::disownVal() {
       _builder.getPointerField(1 * ::capnp::POINTERS));
 }
 
-inline  ::uint8_t KVRequest::Reader::getOpcode() const {
-  return _reader.getDataField< ::uint8_t>(
-      0 * ::capnp::ELEMENTS);
+inline bool KVRequest::Reader::hasOpcode() const {
+  return !_reader.getPointerField(2 * ::capnp::POINTERS).isNull();
 }
-
-inline  ::uint8_t KVRequest::Builder::getOpcode() {
-  return _builder.getDataField< ::uint8_t>(
-      0 * ::capnp::ELEMENTS);
+inline bool KVRequest::Builder::hasOpcode() {
+  return !_builder.getPointerField(2 * ::capnp::POINTERS).isNull();
 }
-inline void KVRequest::Builder::setOpcode( ::uint8_t value) {
-  _builder.setDataField< ::uint8_t>(
-      0 * ::capnp::ELEMENTS, value);
+inline  ::capnp::Text::Reader KVRequest::Reader::getOpcode() const {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(
+      _reader.getPointerField(2 * ::capnp::POINTERS));
+}
+inline  ::capnp::Text::Builder KVRequest::Builder::getOpcode() {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::get(
+      _builder.getPointerField(2 * ::capnp::POINTERS));
+}
+inline void KVRequest::Builder::setOpcode( ::capnp::Text::Reader value) {
+  ::capnp::_::PointerHelpers< ::capnp::Text>::set(
+      _builder.getPointerField(2 * ::capnp::POINTERS), value);
+}
+inline  ::capnp::Text::Builder KVRequest::Builder::initOpcode(unsigned int size) {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::init(
+      _builder.getPointerField(2 * ::capnp::POINTERS), size);
+}
+inline void KVRequest::Builder::adoptOpcode(
+    ::capnp::Orphan< ::capnp::Text>&& value) {
+  ::capnp::_::PointerHelpers< ::capnp::Text>::adopt(
+      _builder.getPointerField(2 * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::capnp::Text> KVRequest::Builder::disownOpcode() {
+  return ::capnp::_::PointerHelpers< ::capnp::Text>::disown(
+      _builder.getPointerField(2 * ::capnp::POINTERS));
 }
 
 }  // namespace

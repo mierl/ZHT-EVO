@@ -34,7 +34,9 @@
 #include "ZHTUtil.h"
 
 #include <stdio.h>
-
+#include <iostream>
+using namespace std;
+using namespace iit::datasys::zht::dm;
 Blob::Blob(const string& blob) {
 
 	assign(blob);
@@ -198,7 +200,8 @@ int BdSendBase::bsend(int sock) const {
 }
 
 int BdSendBase::bsend(int sock, void *senderAddr) const {
-
+	double start, end;
+	start = TimeUtil::getTime_msec();
 	int count = 0;
 	socklen_t addr_len = sizeof(struct sockaddr);
 
@@ -221,7 +224,8 @@ int BdSendBase::bsend(int sock, void *senderAddr) const {
 		/*wait for ack of this blob*/
 		recAck(sock, it->uuid(), terminate);
 	}
-
+	end = TimeUtil::getTime_msec();
+	//cout<<"BdSendBase::split() costs "<<end - start<<endl;
 	return count;
 }
 
@@ -229,7 +233,8 @@ BdSendBase::~BdSendBase() {
 }
 
 void BdSendBase::split() {
-
+	double start, end;
+	start = TimeUtil::getTime_msec();
 	uint64_t uuid = IdHelper::genId();
 
 	size_t size = _msg.size();
@@ -261,6 +266,8 @@ void BdSendBase::split() {
 
 		_blobs.push_back(blob);
 	}
+	end = TimeUtil::getTime_msec();
+	//cout<<"BdSendBase::split() costs "<<end - start<<endl;
 }
 
 BdSendToServer::BdSendToServer(const char *msg) :
@@ -318,7 +325,8 @@ int BdSendToClient::recAck(int sock, const uint64_t& ackid,
 
 string BdRecvBase::getBdStr(int sock, const char * const buf, size_t count,
 		bool& ready) {
-
+	double start, end;
+	start = TimeUtil::getTime_msec();
 	string result;
 
 	/*allocate new mem and copy the buf into mem*/
@@ -360,7 +368,8 @@ string BdRecvBase::getBdStr(int sock, const char * const buf, size_t count,
 	}
 
 	sendAck(sock, blob.uuid());
-
+	end = TimeUtil::getTime_msec();
+	//cout<<"BdRecvBase::getBdStr() costs "<<end - start<<endl;
 	return result;
 }
 

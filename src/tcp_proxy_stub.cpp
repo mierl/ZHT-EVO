@@ -66,6 +66,7 @@ TCPProxy::~TCPProxy() {
 bool TCPProxy::sendrecv(const void *sendbuf, const size_t sendcount,
 		void *recvbuf, size_t &recvcount) {
 
+
 	/*get client sock fd*/
 	ZHTUtil zu;
 	string msg((char*) sendbuf, sendcount);
@@ -84,8 +85,11 @@ bool TCPProxy::sendrecv(const void *sendbuf, const size_t sendcount,
 	int sent_bool = sentSize == sendcount;
 
 	/*receive response from server over client sock fd*/
+	double start = TimeUtil::getTime_msec();
 	recvcount = recvFrom(sock, recvbuf);
 	int recv_bool = recvcount >= 0;
+	double end = TimeUtil::getTime_msec();
+	//cout<<"In TCPProxy::sendrecv, recvFrom() time cost in ms: "<<end - start<<", recvcount = "<<recvcount<<endl;
 
 	/*combine flags as value to be returned*/
 	return sent_bool && recv_bool;
@@ -113,7 +117,7 @@ bool TCPProxy::teardown() {
 int TCPProxy::getSockCached(const string& host, const uint& port) {
 
 	int sock = 0;
-
+	//double start = TimeUtil::getTime_msec();
 #ifdef SOCKET_CACHE
 	LockGuard lock(&CC_MUTEX);
 
@@ -143,7 +147,8 @@ int TCPProxy::getSockCached(const string& host, const uint& port) {
 #else
 	sock = makeClientSocket(host, port);
 #endif
-
+	//double end = TimeUtil::getTime_msec();
+	//cout<<"In getSockCached() time cost in ms: "<<end - start<<endl;
 	return sock;
 }
 
@@ -224,8 +229,10 @@ int TCPProxy::sendTo(int sock, const void* sendbuf, int sendcount) {
 int TCPProxy::recvFrom(int sock, void* recvbuf) {
 
 	string result;
+	//double start = TimeUtil::getTime_msec();
 	int recvcount = loopedrecv(sock, result);
-
+	//double end = TimeUtil::getTime_msec();
+	//cout<<"In TCPProxy::recvFrom(), (BIG_MSG) time cost in ms: "<<end - start<<endl;
 	memcpy(recvbuf, result.c_str(), result.size());
 
 	//prompt errors
@@ -295,6 +302,7 @@ bool TCPStub::recvsend(ProtoAddr addr, const void *recvbuf) {
 
 	//send response to client over server sock fd
 	int sentsize = sendBack(addr, sendbuf, sendcount);
+	//cout<<"TCPStub::recvsend->sendBack: sentsize = "<<sentsize<<", sendbuf = "<< sendbuf<<endl;
 	bool sent_bool = sentsize == sendcount;
 
 	return sent_bool;

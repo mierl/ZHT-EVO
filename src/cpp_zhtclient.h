@@ -37,7 +37,7 @@
 using namespace std;
 
 #include "lru_cache.h"
-
+#include "Util.h"
 #include "ProxyStubFactory.h"
 
 /*
@@ -53,6 +53,7 @@ public:
 
 	int init(const string &zhtConf, const string &neighborConf);
 	int init(const char *zhtConf, const char *neighborConf);
+	int initEvo(const string& zhtConf, const string& neighborConf, const string nameSpaceID, int mode);
 	int lookup(const string &key, string &result);
 	int lookup(const char *key, char *result);
 	int remove(const string &key);
@@ -77,10 +78,16 @@ private:
 	string commonOpInternal(const string &opcode, const string &key,
 			const string &val, const string &val2, string &result, int lease);
 	string extract_value(const string &returnStr);
+	string commonOpInternalOriginal(const string &opcode, const string &key,
+			const string &val, const string &val2, string &result, int lease);
+	string commonOpInternalEVO(const string &opcode, const string &key,
+			const string &val, string &result);
 
 private:
 	ProtoProxy *_proxy;
 	int _msg_maxsize;
+	string nameSpaceID;
+	int mode; //0 by default, for single request mode, 1 for batching.
 };
 
 #endif /* ZHTCLIENT_H_ */

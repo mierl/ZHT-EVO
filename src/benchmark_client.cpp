@@ -51,18 +51,16 @@
 #include "zht_evo.capnp.h"
 #include "evo_util.h"
 
-
 using namespace std;
 using namespace iit::datasys::zht::dm;
 using namespace capnp;
 //using namespace kj;
 using namespace schema;
 
-
 ZHTClient zc;
 int numOfOps = -1;
 int keyLen = 10;
-int valLen = 1000;
+int valLen = 100;
 vector<string> pkgList;
 
 void init_packages() {
@@ -79,62 +77,74 @@ void init_packages() {
 		//package.set_replicanum(5); //orginal--Note: never let it be nagative!!!
 
 		/*
-		package.set_realfullpath(
-				"Some-Real-longer-longer-and-longer-Paths--------");
-		package.add_listitem("item-----1");
-		package.add_listitem("item-----2");
-		package.add_listitem("item-----3");
-		package.add_listitem("item-----4");
-		package.add_listitem("item-----5");
-		package.add_listitem(HashUtil::randomString(8192));
-		*/
+		 package.set_realfullpath(
+		 "Some-Real-longer-longer-and-longer-Paths--------");
+		 package.add_listitem("item-----1");
+		 package.add_listitem("item-----2");
+		 package.add_listitem("item-----3");
+		 package.add_listitem("item-----4");
+		 package.add_listitem("item-----5");
+		 package.add_listitem(HashUtil::randomString(8192));
+		 */
 		pkgList.push_back(package.SerializeAsString());
 	}
 }
 
 void init_packages_capn() {
+	numOfOps = 10;
+
+	vector<Request> reqList;
 
 	for (int i = 0; i < numOfOps; i++) {
-		//::capnp::MallocMessageBuilder message;
-		::capnp::MallocMessageBuilder* messageZU = new capnp::MallocMessageBuilder;
-		ZEMessage::Builder zemBuilder = messageZU->initRoot<ZEMessage>();
-		//KVRequest::Builder reqBuilder = message.initRoot<KVRequest>();
-		int nReq = 2;
-		::capnp::List<KVRequest>::Builder reqList = zemBuilder.initListMsg(nReq);
-		KVRequest::Builder req1 = reqList[0];
-		KVRequest::Builder req2 = reqList[1];
+		Request newReq;
+		newReq.key = string(HashUtil::randomString(keyLen));
+		newReq.val = string(HashUtil::randomString(valLen));
+		newReq.opCode = string("001");
+		reqList.push_back(newReq);
 
-		//reqBuilder.setKey(HashUtil::randomString(keyLen).c_str());
-		//reqBuilder.setVal(HashUtil::randomString(valLen).c_str());
-
-		req1.setKey(HashUtil::randomString(keyLen).c_str());
-		req1.setVal(HashUtil::randomString(valLen).c_str());
-		req2.setKey(HashUtil::randomString(keyLen).c_str());
-		req2.setVal(HashUtil::randomString(valLen).c_str());
-		//string testStr = string(reqBuilder.toString().flatten().cStr());
-		//cout << "testStr = req.toString().flatten(): " << testStr<<endl;
-
-		string packStr = string(zemBuilder.toString().flatten().cStr());
-
-//		::capnp::writePackedMessage(pipe, reqBuilder);
-//		::capnp::PackedMessageReader reqReader(pipe);//testStr.c_str()
-//		KVRequest::Reader reqRead();
-		char* capnStr = NULL;
-		unsigned long strLen = 0;
-		zeMsgToCStr(messageZU, capnStr, strLen);
-
-		ZEMessage::Reader packReader = getZEMsgReader(capnStr, strLen);
-
-		for(KVRequest::Reader req : packReader.getListMsg()){
-			cout << "req key = " << string(req.getKey()) << "; req val = "<< string(req.getVal())<<endl;
-		}
-
-
-		// now get data out of packStr
-//		cout<< "Read from a pack: key = " << reqRead.getKey() << ", and val = " << reqRead.getVal();
-
-		//pkgList.push_back(testStr);
+//		//::capnp::MallocMessageBuilder message;
+//		::capnp::MallocMessageBuilder* messageZU =
+//				new capnp::MallocMessageBuilder;
+//		ZEMessage::Builder zemBuilder = messageZU->initRoot<ZEMessage>();
+//		//KVRequest::Builder reqBuilder = message.initRoot<KVRequest>();
+//		int nReq = 2;
+//		::capnp::List<KVRequest>::Builder reqList = zemBuilder.initListMsg(
+//				nReq);
+//		KVRequest::Builder req1 = reqList[0];
+//		KVRequest::Builder req2 = reqList[1];
+//
+//		req1.setKey(HashUtil::randomString(keyLen).c_str());
+//		req1.setVal(HashUtil::randomString(valLen).c_str());
+//		req2.setKey(HashUtil::randomString(keyLen).c_str());
+//		req2.setVal(HashUtil::randomString(valLen).c_str());
+//
+//
+//		// now get data out of packStr
+////		cout<< "Read from a pack: key = " << reqRead.getKey() << ", and val = " << reqRead.getVal();
+//
+//		//pkgList.push_back(testStr);
 	}
+
+	::capnp::MallocMessageBuilder* messageZU =  makeMsgPack(reqList);
+	void* capnStr = NULL;
+	unsigned long strLen = 0;
+	msgToBuff(messageZU, capnStr, strLen);
+
+	ZEMessage::Reader packReader = getZEMsgReader(capnStr, strLen);
+
+//		for (KVRequest::Reader req : packReader.getListMsg()) {
+//			//cout << "req key = " << string(req.getKey()) << "; req val = "<< string(req.getVal())<<endl;
+//			cout << "capn buf size = " << strLen << endl;
+//			cout << "capn buf strlen() size = " << sizeof(capnStr) << endl;
+//		}
+
+	vector<Request> rtList = extrReqVector(capnStr, strLen);
+
+	for (Request req : rtList) {
+		cout << "req.key = " << req.key << ", req.val = " << req.val
+				<< ", req.opCode = " << req.opCode << endl;
+	}
+
 }
 
 int benchmarkInsert() {
@@ -170,9 +180,6 @@ int benchmarkInsert() {
 
 	return 0;
 }
-
-
-
 
 int benchmarkAppend() {
 
@@ -292,26 +299,26 @@ float benchmarkRemove() {
 	return 0;
 }
 
-
 int benchmark(string &zhtConf, string &neighborConf) {
 
 	srand(getpid() + TimeUtil::getTime_usec());
 
-	if (zc.init(zhtConf, neighborConf) != 0) {
+	if (zc.initEvo(zhtConf, neighborConf, string(""), 1) != 0) {
 
 		cout << "ZHTClient initialization failed, program exits." << endl;
 		return -1;
 	}
 
-	init_packages_capn();
+//	init_packages_capn();
+	init_packages();
 
-//	benchmarkInsert();
-//
-//	benchmarkLookup();
-//
-//	benchmarkAppend();
-//
-//	benchmarkRemove();
+	benchmarkInsert();
+
+	benchmarkLookup();
+
+	//benchmarkAppend();
+
+	//benchmarkRemove();
 //
 //	zc.teardown();
 
@@ -322,6 +329,9 @@ int benchmark(string &zhtConf, string &neighborConf) {
 void printUsage(char *argv_0);
 
 int main(int argc, char **argv) {
+
+	init_packages_capn();
+	return 0;
 
 	extern char *optarg;
 

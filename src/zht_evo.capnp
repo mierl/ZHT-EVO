@@ -12,5 +12,5 @@ struct ZEMessage {
 struct KVRequest {
 	key @0 :Text;
 	val @1 :Text;
-	opcode @2 :UInt8; #operation code
+	opcode @2 :Text; #operation code
 }

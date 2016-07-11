@@ -122,24 +122,33 @@ void IPProtoProxy::putSockMutex(const string& host, const uint& port) {
 }
 
 int IPProtoProxy::loopedrecv(int sock, void *senderAddr, string &srecv) {
-
+	double start = TimeUtil::getTime_msec();
+	double end = TimeUtil::getTime_msec();
 	ssize_t recvcount = -2;
 	socklen_t addr_len = sizeof(struct sockaddr);
 
 	BdRecvBase *pbrb = new BdRecvFromServer();
 
 	char buf[Env::BUF_SIZE];
-
+	int i=0;
 	while (1) {
 
-		memset(buf, '\0', sizeof(buf));
+		memset(buf, '\0', Env::BUF_SIZE );//sizeof(buf)
 
 		ssize_t count;
-		if (senderAddr == NULL)
+		if (senderAddr == NULL) {
+			//cout <<"In IPProtoProxy::loopedrecv(), before recv: recv buf = " <<string(buf) <<endl;
+			start = TimeUtil::getTime_msec();
 			count = ::recv(sock, buf, sizeof(buf), 0);
-		else
+			end = TimeUtil::getTime_msec();
+
+			//cout<<"In IPProtoProxy::loopedrecv()->recv() time cost in ms: "<<end - start<<", recvcount = "<<count<<endl;
+			//cout <<"In IPProtoProxy::loopedrecv(), recv buf = " <<string(buf) <<endl;
+		}
+		else {
 			count = ::recvfrom(sock, buf, sizeof(buf), 0,
 					(struct sockaddr *) senderAddr, &addr_len);
+		}
 
 		if (count == -1 || count == 0) {
 
@@ -165,6 +174,7 @@ int IPProtoProxy::loopedrecv(int sock, void *senderAddr, string &srecv) {
 
 	delete pbrb;
 	pbrb = NULL;
+
 
 	return recvcount;
 }

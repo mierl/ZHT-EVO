@@ -81,6 +81,7 @@ HTWorker::~HTWorker() {
 
 string HTWorker::run(const char *buf) {
 
+	//return	Const::ZSC_REC_SUCC; //blank test: do nothing and always return 0;
 	string result;
 
 	ZPack zpack;
