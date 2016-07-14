@@ -39,8 +39,6 @@
 #include <pthread.h>
 #include <stdlib.h>
 
-
-
 using namespace std;
 using namespace iit::datasys::zht::dm;
 
@@ -62,7 +60,7 @@ HTWorker::QUEUE* HTWorker::PQUEUE = new QUEUE();
 
 bool HTWorker::FIRST_ASYNC = false;
 
-int HTWorker::SCCB_POLL_INTERVAL = 100;//Env::get_sccb_poll_interval();
+int HTWorker::SCCB_POLL_INTERVAL = 100; //Env::get_sccb_poll_interval();
 
 HTWorker::HTWorker() :
 		_stub(NULL), _instant_swap(get_instant_swap()) {
@@ -79,26 +77,38 @@ HTWorker::HTWorker(const ProtoAddr& addr, const ProtoStub* const stub) :
 HTWorker::~HTWorker() {
 }
 
-string run_evo(const void *buf){
+string run_evo(const void *buf) {
+	cout<<"run_evo()..."<<endl;
+	void* capnBuf;
+	size_t capnLen = -1;
 
-	size_t dataLen = 0;// buf = dataLen + data;
-	memcpy(&dataLen, buf, sizeof(size_t));
+	capnLen = splitBuf((void*) buf, capnBuf);
 
-	vector<Request> reqList = extrReqVector(buf, dataLen);
+	vector<Request> reqList = extrReqVector(capnBuf, capnLen);
 
+	if (reqList.size() > 1) {
 
-	return string("");
+		cout << "Multiple request received, not implemented yet." << endl;
+
+		return Const::ASC_REC_SUCC;
+	}
+
+	cout<<"run_evo: opCode"<<reqList.at(0).opCode<<endl;
+	cout<<"run_evo: key"<<reqList.at(0).key<<endl;
+	cout<<"run_evo: val"<<reqList.at(0).val<<endl;
+
+	return Const::ASC_REC_SUCC;
 }
 
 string HTWorker::run(const void *buf) {
 
 	string result;
+
 #ifdef	EVO
 	return run_evo(buf);
 #else
 
 	//return	Const::ZSC_REC_SUCC; //blank test: do nothing and always return 0;
-
 
 	ZPack zpack;
 	string str((char*)buf);
@@ -443,9 +453,8 @@ void HTWorker::init_me() {
 
 #else
 	if (PMAP == NULL)
-		PMAP = new NoVoHT(get_novoht_file(), 100000, 10000, 0.7);
+	PMAP = new NoVoHT(get_novoht_file(), 100000, 10000, 0.7);
 #endif
-
 
 }
 

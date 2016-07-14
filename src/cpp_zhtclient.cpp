@@ -374,21 +374,27 @@ string ZHTClient::commonOpInternalEVO(const string &opcode, const string &key,
 	req.opCode = opcode;
 	reqList.push_back(req);
 
-	void* tmpBuf;
-	size_t capnLen;
-	msgToBuff(makeMsgPack(reqList), tmpBuf, capnLen);
+	void* tmpBuf=NULL;
+	size_t capnLen = -1;
 
+	::capnp::MallocMessageBuilder* builder = makeMsgPack(reqList);
+	msgToBuff(builder, tmpBuf, capnLen);
 
-	void* recvBuf = calloc(_msg_maxsize, sizeof(char));
+	cout<< "capnLen = "<<capnLen<<endl;
 
 	void* sendBuf;
 
 	concatBuf(tmpBuf, capnLen, sendBuf);
 
+	void* recvBuf = calloc(_msg_maxsize, sizeof(char));
 	size_t recvLen;
 
-
 	_proxy->sendrecv(sendBuf, capnLen + sizeof(size_t), recvBuf, recvLen);
+
+	free(tmpBuf);
+	free(sendBuf);
+
+	result = Const::ASC_REC_SUCC;
 
 	return Const::ASC_REC_SUCC;
 
@@ -396,7 +402,9 @@ string ZHTClient::commonOpInternalEVO(const string &opcode, const string &key,
 
 string ZHTClient::commonOpInternal(const string &opcode, const string &key,
 		const string &val, const string &val2, string &result, int lease) {
+
 	if (0 == this->mode) {
+
 		cout<<"client mode = 0"<<endl;
 		return commonOpInternalOriginal(opcode, key, val, val2, result, lease);
 

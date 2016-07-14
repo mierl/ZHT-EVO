@@ -276,7 +276,7 @@ int benchmark(string &zhtConf, string &neighborConf) {
 
 	benchmarkInsert();
 
-	benchmarkLookup();
+//	benchmarkLookup();
 
 	//benchmarkAppend();
 
@@ -299,9 +299,14 @@ void mapTest(){
 	size_t len = 3;
 	concatBuf((void*)key, len, buf);
 
-	cout << (char*)buf <<endl;
+	size_t testLen = -1;
+	void* dstBuf;
 
-	cout << (char*)(buf+sizeof(size_t)) <<endl;
+	testLen = splitBuf(buf, dstBuf);
+
+	cout << "dstBuf = " <<(char*)dstBuf <<endl;
+
+	cout << "buf + sizeof(size_t) = " << (char*)(buf+sizeof(size_t)) <<endl;
 
 	//cout << (char*) &buf[3] <<endl;
 	free(buf);
@@ -310,16 +315,8 @@ void mapTest(){
 
 int main(int argc, char **argv) {
 
-
-
-
-
-
-	mapTest();
-	return 0;
-
-
-
+//	mapTest();
+//	return 0;
 
 	extern char *optarg;
 

@@ -19,7 +19,7 @@
 
 	::capnp::List<KVRequest>::Builder reqListBdr = zemBuilder.initListMsg(nReq);
 
-	for(int i=0; i< nReq; i++){
+	for (int i = 0; i < nReq; i++) {
 
 		reqListBdr[i].setKey(reqList.at(i).key.c_str());
 		reqListBdr[i].setVal(reqList.at(i).val.c_str());
@@ -31,8 +31,6 @@
 
 	return messageZU;
 }
-
-
 
 int msgToBuff(capnp::MessageBuilder *msg, void* &to_capn_str, size_t &len) {
 
@@ -92,13 +90,13 @@ ZEMessage::Reader getZEMsgReader(const void* from_capn_str, int capnStrSize) {
 	return zemReader;
 }
 
-vector<Request> extrReqVector(const void* from_capn_str, int capnStrSize){
+vector<Request> extrReqVector(const void* from_capn_str, int capnStrSize) {
 
 	vector<Request> reqList;
 
-	ZEMessage::Reader zemReader = getZEMsgReader(from_capn_str,  capnStrSize);
+	ZEMessage::Reader zemReader = getZEMsgReader(from_capn_str, capnStrSize);
 
-	for(KVRequest::Reader req : zemReader.getListMsg()){
+	for (KVRequest::Reader req : zemReader.getListMsg()) {
 
 		Request newReq;
 
@@ -111,18 +109,31 @@ vector<Request> extrReqVector(const void* from_capn_str, int capnStrSize){
 	}
 
 	return reqList;
-
 }
 
-int concatBuf(void* srcBuf, size_t srcLen, void* &dstBuf){
+int concatBuf(void* srcBuf, size_t srcLen, void* &dstBuf) {
+
 	size_t len = srcLen;
-	void* outBuf = malloc(sizeof(size_t) + len);
-	memcpy(outBuf, &len, sizeof(size_t));
-	memcpy(outBuf+sizeof(size_t), srcBuf, len);
-	dstBuf = outBuf;
+	dstBuf = malloc(sizeof(size_t) + len);
+
+	memcpy(dstBuf, &len, sizeof(size_t));
+
+	memcpy(dstBuf + sizeof(size_t), srcBuf, len);
 
 	return 0;
 }
 
+size_t splitBuf(void* srcBuf, void* &dstBuf) {
 
+	size_t capnLen = -1;
+
+	memcpy(&capnLen, srcBuf, sizeof(size_t));
+
+	if (capnLen > 0) {
+		dstBuf = calloc(capnLen, sizeof(byte));
+		memcpy(dstBuf, srcBuf + sizeof(size_t), capnLen);
+	}
+
+	return capnLen;
+}
 

@@ -34,3 +34,5 @@ ZEMessage::Reader getZEMsgReader(const void* from_buf, int capnStrSize);
 vector<Request> extrReqVector(const void* from_capn_str, int capnStrSize);
 
 int concatBuf(void* srcBuf, size_t srcLen, void* &dstBuf);
+
+size_t splitBuf(void* srcBuf, void* &dstBuf);

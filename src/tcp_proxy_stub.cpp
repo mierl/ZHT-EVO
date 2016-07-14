@@ -285,11 +285,12 @@ bool TCPStub::recvsend(ProtoAddr addr, const void *recvbuf) {
 
 #ifdef EVO
 
-
+#else
+	//string recvstr((char*) recvbuf);
 #endif
 
 	//get response to be sent to client
-	string recvstr((char*) recvbuf);
+
 
 #ifdef SCCB
 	HTWorker htw(addr, this);
