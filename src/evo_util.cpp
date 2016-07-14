@@ -114,7 +114,15 @@ vector<Request> extrReqVector(const void* from_capn_str, int capnStrSize){
 
 }
 
+int concatBuf(void* srcBuf, size_t srcLen, void* &dstBuf){
+	size_t len = srcLen;
+	void* outBuf = malloc(sizeof(size_t) + len);
+	memcpy(outBuf, &len, sizeof(size_t));
+	memcpy(outBuf+sizeof(size_t), srcBuf, len);
+	dstBuf = outBuf;
 
+	return 0;
+}
 
 
 

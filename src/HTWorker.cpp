@@ -39,7 +39,7 @@
 #include <pthread.h>
 #include <stdlib.h>
 
-#include "zht_evo.capnp.h"
+
 
 using namespace std;
 using namespace iit::datasys::zht::dm;
@@ -79,13 +79,29 @@ HTWorker::HTWorker(const ProtoAddr& addr, const ProtoStub* const stub) :
 HTWorker::~HTWorker() {
 }
 
-string HTWorker::run(const char *buf) {
+string run_evo(const void *buf){
+
+	size_t dataLen = 0;// buf = dataLen + data;
+	memcpy(&dataLen, buf, sizeof(size_t));
+
+	vector<Request> reqList = extrReqVector(buf, dataLen);
+
+
+	return string("");
+}
+
+string HTWorker::run(const void *buf) {
+
+	string result;
+#ifdef	EVO
+	return run_evo(buf);
+#else
 
 	//return	Const::ZSC_REC_SUCC; //blank test: do nothing and always return 0;
-	string result;
+
 
 	ZPack zpack;
-	string str(buf);
+	string str((char*)buf);
 	zpack.ParseFromString(str);
 
 	if (zpack.opcode() == Const::ZSC_OPC_LOOKUP) {
@@ -110,7 +126,7 @@ string HTWorker::run(const char *buf) {
 
 		result = Const::ZSC_REC_UOPC;
 	}
-
+#endif
 	return result;
 }
 
@@ -420,8 +436,17 @@ string HTWorker::get_novoht_file() {
 
 void HTWorker::init_me() {
 
+#ifdef EVO
+
+	EVO_MAP = NULL;
+	EVO_MAP = new map<string, string>;
+
+#else
 	if (PMAP == NULL)
 		PMAP = new NoVoHT(get_novoht_file(), 100000, 10000, 0.7);
+#endif
+
+
 }
 
 bool HTWorker::get_instant_swap() {

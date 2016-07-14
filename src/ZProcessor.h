@@ -48,7 +48,7 @@ public:
 	ZProcessor();
 	virtual ~ZProcessor();
 
-	virtual void process(const int& fd, const char * const buf,
+	virtual void process(const int& fd, const void * const buf,
 			sockaddr sender) = 0;
 
 	virtual void sendback(const int& fd, const char *buf, const size_t& count,

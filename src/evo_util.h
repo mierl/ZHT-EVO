@@ -32,3 +32,5 @@ int msgToBuff(capnp::MessageBuilder *msg, void* &to_capn_str, size_t &len);
 ZEMessage::Reader getZEMsgReader(const void* from_buf, int capnStrSize);
 
 vector<Request> extrReqVector(const void* from_capn_str, int capnStrSize);
+
+int concatBuf(void* srcBuf, size_t srcLen, void* &dstBuf);

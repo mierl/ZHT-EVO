@@ -338,7 +338,7 @@ bool UDPStub::recvsend(ProtoAddr addr, const void *recvbuf) {
 	HTWorker htw;
 #endif
 
-	string result = htw.run(recvstr.c_str());
+	string result = htw.run(recvbuf);
 
 #ifdef SCCB
 	return true;

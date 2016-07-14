@@ -49,7 +49,7 @@
 #include <capnp/schema.h>
 #include <capnp/generated-header-support.h>
 #include "zht_evo.capnp.h"
-#include "evo_util.h"
+//#include "evo_util.h"
 
 using namespace std;
 using namespace iit::datasys::zht::dm;
@@ -290,10 +290,36 @@ int benchmark(string &zhtConf, string &neighborConf) {
 
 void printUsage(char *argv_0);
 
+void mapTest(){
+
+	const char* val = "value";
+	const char* key = "key";
+
+	void* buf;
+	size_t len = 3;
+	concatBuf((void*)key, len, buf);
+
+	cout << (char*)buf <<endl;
+
+	cout << (char*)(buf+sizeof(size_t)) <<endl;
+
+	//cout << (char*) &buf[3] <<endl;
+	free(buf);
+
+}
+
 int main(int argc, char **argv) {
 
-	init_packages_capn();
+
+
+
+
+
+	mapTest();
 	return 0;
+
+
+
 
 	extern char *optarg;
 

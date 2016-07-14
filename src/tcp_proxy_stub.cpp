@@ -283,6 +283,11 @@ TCPStub::~TCPStub() {
 
 bool TCPStub::recvsend(ProtoAddr addr, const void *recvbuf) {
 
+#ifdef EVO
+
+
+#endif
+
 	//get response to be sent to client
 	string recvstr((char*) recvbuf);
 
@@ -292,7 +297,7 @@ bool TCPStub::recvsend(ProtoAddr addr, const void *recvbuf) {
 	HTWorker htw;
 #endif
 
-	string result = htw.run(recvstr.c_str());
+	string result = htw.run(recvbuf);//htw.run((void*)recvstr.c_str());
 
 #ifdef SCCB
 	return true;

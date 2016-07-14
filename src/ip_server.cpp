@@ -52,7 +52,7 @@ IPServer::~IPServer() {
 	}
 }
 
-void IPServer::process(const int& fd, const char * const buf, sockaddr sender) {
+void IPServer::process(const int& fd, const void * const buf, sockaddr sender) {
 
 	if (_stub == 0) {
 
@@ -66,7 +66,7 @@ void IPServer::process(const int& fd, const char * const buf, sockaddr sender) {
 	pa.sender = calloc(1, sizeof(sockaddr));
 	memcpy(pa.sender, &sender, sizeof(sockaddr));
 
-	string bufstr(buf);
+	string bufstr((char*)buf);
 	_stub->recvsend(pa, bufstr.c_str());
 }
 

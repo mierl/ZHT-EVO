@@ -361,17 +361,39 @@ string ZHTClient::commonOpInternalOriginal(const string &opcode,
 	return sstatus;
 
 }
+
 string ZHTClient::commonOpInternalEVO(const string &opcode, const string &key,
 		const string &val, string &result){
 	//TODO:
 	//- Make a capn structure for a pack of requests and assign them: single request first
 	//- Make a void* buf from the structure.
+	vector<Request> reqList;
+	Request req;
+	req.key = key;
+	req.val = val;
+	req.opCode = opcode;
+	reqList.push_back(req);
+
+	void* tmpBuf;
+	size_t capnLen;
+	msgToBuff(makeMsgPack(reqList), tmpBuf, capnLen);
 
 
-	//_proxy->sendrecv();
+	void* recvBuf = calloc(_msg_maxsize, sizeof(char));
+
+	void* sendBuf;
+
+	concatBuf(tmpBuf, capnLen, sendBuf);
+
+	size_t recvLen;
+
+
+	_proxy->sendrecv(sendBuf, capnLen + sizeof(size_t), recvBuf, recvLen);
+
 	return Const::ASC_REC_SUCC;
 
 }
+
 string ZHTClient::commonOpInternal(const string &opcode, const string &key,
 		const string &val, const string &val2, string &result, int lease) {
 	if (0 == this->mode) {

@@ -36,9 +36,11 @@
 #include "proxy_stub.h"
 #include <string>
 #include <queue>
+#include <map>
 #include "TSafeQueue-impl.h"
 
 #include "zht_evo.capnp.h"
+#include "evo_util.h"
 
 using namespace std;
 using namespace iit::cs550::finalproj;
@@ -60,6 +62,9 @@ public:
 /*
  *
  */
+
+static map<string, string> * EVO_MAP; //ZHT-EVO temp map.
+
 class HTWorker {
 public:
 	typedef TSafeQueue<WorkerThreadArg*> QUEUE;
@@ -70,7 +75,7 @@ public:
 	virtual ~HTWorker();
 
 public:
-	string run(const char *buf);
+	string run(const void *buf);
 
 private:
 	string insert(const ZPack &zpack);
@@ -105,6 +110,7 @@ private:
 
 private:
 	static NoVoHT *PMAP;
+
 	static QUEUE *PQUEUE;
 	static bool FIRST_ASYNC;
 	static int SCCB_POLL_INTERVAL;
