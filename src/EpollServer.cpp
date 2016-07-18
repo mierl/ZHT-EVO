@@ -51,7 +51,7 @@ namespace datasys {
 namespace zht {
 namespace dm {
 
-EventData::EventData(int fd, const char* buf, size_t bufsize, sockaddr addr) {
+EventData::EventData(int fd, const void* buf, size_t bufsize, sockaddr addr) {//char -> void
 
 	_fd = fd;
 	int len = strlen((const char*) buf);
@@ -72,7 +72,7 @@ int EventData::fd() const {
 	return _fd;
 }
 
-char* EventData::buf() const {
+void* EventData::buf() const {//char -> void
 
 	return _buf;
 }
@@ -345,6 +345,7 @@ void EpollServer::serve() {
 	event.data.ptr = new EpollData(sfd, NULL);
 	event.events = EPOLLIN | EPOLLET;
 	s = epoll_ctl(efd, EPOLL_CTL_ADD, sfd, &event);
+
 	if (s == -1) {
 		perror("epoll_ctl");
 		abort();
@@ -383,7 +384,7 @@ void EpollServer::serve() {
 					/* We have a notification on the listening socket, which
 					 means one or more incoming connections. */
 					while (1) {
-						cout<<"New connection: edata->fd() = "<< edata->fd() <<", sfd = "<< sfd<<endl;
+						//cout<<"New connection: edata->fd() = "<< edata->fd() <<", sfd = "<< sfd<<endl;
 						sockaddr *in_addr = (sockaddr *) calloc(1,
 								sizeof(struct sockaddr));
 						socklen_t in_len = sizeof(struct sockaddr);
@@ -436,7 +437,7 @@ void EpollServer::serve() {
 						event.events = EPOLLIN | EPOLLET;
 						s = epoll_ctl(efd, EPOLL_CTL_ADD, infd, &event);
 						end0 = TimeUtil::getTime_msec();
-						cout<<"------ epoll_ctl time: "<< end0 - start0 <<" ms. add to events"<<endl;
+						//cout<<"------ epoll_ctl time: "<< end0 - start0 <<" ms. add to events"<<endl;
 
 						if (s == -1) {
 
@@ -542,15 +543,17 @@ void EpollServer::serve() {
 
 					while (1) {
 						//cout<<"not a new connection, in while loop"<<endl;
-						char buf[Env::BUF_SIZE];
-						memset(buf, 0, sizeof(buf));
+						//char buf[Env::BUF_SIZE];
+						void* buf = malloc(Env::BUF_SIZE);
+						memset(buf, 0, Env::BUF_SIZE);
 						//char *buf = (char*) calloc(Env::BUF_SIZE, sizeof(char));
 
 						double start, end;
 						start = TimeUtil::getTime_msec();
-						ssize_t count = recv(edata->fd(), buf, sizeof(buf), 0);
+						ssize_t count = recv(edata->fd(), buf, Env::BUF_SIZE, 0);
 						end = TimeUtil::getTime_msec();
 						//cout<<"Non-new, recv() "<<count <<" bytes cost "<< end - start <<" ms. edata->fd() = "<< edata->fd() <<", sfd = "<< sfd<<endl;
+						cout<<"Non-new, recv() "<<count <<" bytes"<<endl;
 						if (count == -1) {
 
 							/* If errno == EAGAIN, that means we have read all
@@ -581,7 +584,7 @@ void EpollServer::serve() {
 							start = TimeUtil::getTime_msec();
 #ifdef BIG_MSG
 							bool ready = false;
-							string bd = pbrb->getBdStr(sfd, buf, count, ready);
+							string bd = pbrb->getBdStr(sfd, (const char*)buf, count, ready);
 
 							if (ready) {
 
@@ -590,11 +593,11 @@ void EpollServer::serve() {
 										*edata->sender());
 								_eventQueue.push(eventData);
 #else
-								_ZProcessor->process(edata->fd(), bd.c_str(),
-										*edata->sender());
-#endif
+								_ZProcessor->process(edata->fd(), bd.data(),
+										*edata->sender());//bd.c_str() -> .data()
+#endif //THREADED_SERVE
 							}
-#endif
+#endif //BIG_MSG
 
 #ifdef SML_MSG
 #ifdef THREADED_SERVE
@@ -606,7 +609,7 @@ void EpollServer::serve() {
 							_ZProcessor->process(edata->fd(), bufstr.c_str(),
 									*edata->sender());
 #endif
-#endif
+#endif //SML_MSG
 							end = TimeUtil::getTime_msec();
 							//cout<<"BIG_MSG, else loop,  cost "<< end - start <<" ms." <<endl;
 

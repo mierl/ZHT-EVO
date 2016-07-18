@@ -192,8 +192,11 @@ int TCPProxy::makeClientSocket(const string& host, const uint& port) {
 #ifdef BIG_MSG
 int TCPProxy::sendTo(int sock, const void* sendbuf, int sendcount) {
 
-	BdSendBase *pbsb = new BdSendToServer((char*) sendbuf);
+	//BdSendBase *pbsb = new BdSendToServer((char*) sendbuf);
+	string toSend = string((const char*)sendbuf, sendcount);//evo
+	BdSendBase *pbsb = new BdSendToServer(toSend);//evo
 	int sentSize = pbsb->bsend(sock);
+	cout<<"TCPProxy::sendTo(): sentSize = "<< sentSize<<endl;
 	delete pbsb;
 	pbsb = NULL;
 
@@ -233,7 +236,7 @@ int TCPProxy::recvFrom(int sock, void* recvbuf) {
 	int recvcount = loopedrecv(sock, result);
 	//double end = TimeUtil::getTime_msec();
 	//cout<<"In TCPProxy::recvFrom(), (BIG_MSG) time cost in ms: "<<end - start<<endl;
-	memcpy(recvbuf, result.c_str(), result.size());
+	memcpy(recvbuf, result.data(), result.size());
 
 	//prompt errors
 	if (recvcount < 0) {
@@ -303,7 +306,7 @@ bool TCPStub::recvsend(ProtoAddr addr, const void *recvbuf) {
 #ifdef SCCB
 	return true;
 #else
-	const char *sendbuf = result.data();
+	const void *sendbuf = result.data();
 	int sendcount = result.size();
 
 	//send response to client over server sock fd

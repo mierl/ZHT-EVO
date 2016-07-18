@@ -48,12 +48,13 @@ namespace dm {
 
 class EventData {
 public:
-	EventData(int fd, const char* buf, size_t bufsize, sockaddr addr);
+	EventData(int fd, const void* buf, size_t bufsize, sockaddr addr);//char -> void
 
 	~EventData();
 
 	int fd() const;
-	char* buf() const;
+	void* buf() const;//char -> void
+
 	size_t bufsize() const;
 	sockaddr fromaddr();
 

@@ -83,7 +83,7 @@ string run_evo(const void *buf) {
 	size_t capnLen = -1;
 
 	capnLen = splitBuf((void*) buf, capnBuf);
-
+	cout<<"run_evo(): capnLen = "<< capnLen<<endl;
 	vector<Request> reqList = extrReqVector(capnBuf, capnLen);
 
 	if (reqList.size() > 1) {

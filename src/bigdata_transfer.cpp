@@ -121,16 +121,16 @@ Blob& Blob::assign(const string& blob) {
 	//add header, total length is 38 bytes.
 	size_t sc = 0;
 
-	uuid(strtoull(blob.substr(sc, getUuidLen()).c_str(), NULL, 10));
+	uuid(strtoull(blob.substr(sc, getUuidLen()).data(), NULL, 10));
 	sc += getUuidLen();
 
-	seqNum(strtoul(blob.substr(sc, getCountLen()).c_str(), NULL, 10));
+	seqNum(strtoul(blob.substr(sc, getCountLen()).data(), NULL, 10));
 	sc += getCountLen();
 
-	total(strtoul(blob.substr(sc, getCountLen()).c_str(), NULL, 10));
+	total(strtoul(blob.substr(sc, getCountLen()).data(), NULL, 10));
 	sc += getCountLen();
 
-	size(strtoul(blob.substr(sc, getSizeLen()).c_str(), NULL, 10));
+	size(strtoul(blob.substr(sc, getSizeLen()).data(), NULL, 10));
 	sc += getSizeLen();
 
 	value(blob.substr(sc));
@@ -177,7 +177,7 @@ string Blob::format(const string& format, const size_t& value) const {
 
 	char buf[50];
 	memset(buf, 0, sizeof(buf));
-	int n = sprintf(buf, format.c_str(), value);
+	int n = sprintf(buf, format.data(), value);
 
 	return string(buf, 0, n);
 }
@@ -211,9 +211,9 @@ int BdSendBase::bsend(int sock, void *senderAddr) const {
 		string bstr = it->toString();
 
 		if (senderAddr == NULL)
-			count += send(sock, bstr.c_str(), bstr.size(), 0);
+			count += send(sock, bstr.data(), bstr.size(), 0);//evo: c_tr -> data
 		else
-			count += sendto(sock, bstr.c_str(), bstr.size(), 0,
+			count += sendto(sock, bstr.data(), bstr.size(), 0,
 					(struct sockaddr *) senderAddr, sizeof(struct sockaddr));
 
 		/*remove the header, since the caller probably wants knowing real-sent-size*/
@@ -334,7 +334,8 @@ string BdRecvBase::getBdStr(int sock, const char * const buf, size_t count,
 	 strncpy(bbuf, str.c_str(), str.size());
 	 Blob blob(bbuf);*/
 
-	Blob blob(string(buf, 0, count));
+	//Blob blob(string(buf, 0, count));//old zht: substring, start from 0.
+	Blob blob(string(buf, count));//evo
 
 	if (blob.total() == 1) { //only one blob
 

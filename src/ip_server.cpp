@@ -67,6 +67,6 @@ void IPServer::process(const int& fd, const void * const buf, sockaddr sender) {
 	memcpy(pa.sender, &sender, sizeof(sockaddr));
 
 	string bufstr((char*)buf);
-	_stub->recvsend(pa, bufstr.c_str());
+	_stub->recvsend(pa, bufstr.data());
 }
 

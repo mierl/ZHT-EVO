@@ -59,8 +59,8 @@ using namespace schema;
 
 ZHTClient zc;
 int numOfOps = -1;
-int keyLen = 10;
-int valLen = 100;
+int keyLen = 5;
+int valLen = 10;
 vector<string> pkgList;
 
 void init_packages() {
@@ -100,7 +100,13 @@ void init_packages_capn() {
 
 	ZEMessage::Reader packReader = getZEMsgReader(capnStr, strLen);
 
-	vector<Request> rtList = extrReqVector(capnStr, strLen);
+	void* tmp;
+	concatBuf(capnStr, strLen, tmp);
+
+	void* dst;
+	size_t newLen = splitBuf(tmp, dst);
+
+	vector<Request> rtList = extrReqVector(dst, newLen);
 
 	for (Request req : rtList) {
 		cout << "req.key = " << req.key << ", req.val = " << req.val
@@ -317,7 +323,8 @@ int main(int argc, char **argv) {
 
 //	mapTest();
 //	return 0;
-
+	init_packages_capn();
+	return 0;
 	extern char *optarg;
 
 	int printHelp = 0;
