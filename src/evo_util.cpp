@@ -130,8 +130,9 @@ size_t splitBuf(void* srcBuf, void* &dstBuf) {
 	memcpy(&capnLen, srcBuf, sizeof(size_t));
 
 	if (capnLen > 0) {
-		dstBuf = calloc(capnLen, sizeof(byte));
+		dstBuf = calloc(capnLen+1, sizeof(byte));
 		memcpy(dstBuf, srcBuf + sizeof(size_t), capnLen);
+		memset(dstBuf+capnLen, '\0', 1);
 	}
 
 	return capnLen;

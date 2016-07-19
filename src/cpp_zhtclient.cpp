@@ -380,6 +380,8 @@ string ZHTClient::commonOpInternalEVO(const string &opcode, const string &key,
 	::capnp::MallocMessageBuilder* builder = makeMsgPack(reqList);
 	msgToBuff(builder, tmpBuf, capnLen);
 
+	vector<Request> testList = extrReqVector(tmpBuf, capnLen);
+
 	cout<< "capnLen = "<<capnLen<<endl;
 
 	void* sendBuf;
@@ -389,7 +391,15 @@ string ZHTClient::commonOpInternalEVO(const string &opcode, const string &key,
 	void* recvBuf = calloc(_msg_maxsize, sizeof(char));
 	size_t recvLen;
 
-	_proxy->sendrecv(sendBuf, capnLen + sizeof(size_t), recvBuf, recvLen);
+	void* sBuf;
+	size_t tLen = splitBuf(sendBuf, sBuf);
+
+	FILE * pFile;
+	pFile = fopen ("clt.bin", "wb");
+	fwrite (tmpBuf , capnLen , 1, pFile);
+	fclose (pFile);
+
+	_proxy->sendrecv(sendBuf, capnLen+sizeof(size_t), recvBuf, recvLen);
 
 	free(tmpBuf);
 	free(sendBuf);

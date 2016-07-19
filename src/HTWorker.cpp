@@ -79,23 +79,36 @@ HTWorker::~HTWorker() {
 
 string run_evo(const void *buf) {
 	cout<<"run_evo()..."<<endl;
-	void* capnBuf;
-	size_t capnLen = -1;
 
-	capnLen = splitBuf((void*) buf, capnBuf);
-	cout<<"run_evo(): capnLen = "<< capnLen<<endl;
-	vector<Request> reqList = extrReqVector(capnBuf, capnLen);
+	void* capnStr;
+	size_t capnLen = 96;
+	printf("%s", (char*)buf);
+	capnLen = splitBuf((void*) buf, capnStr);
 
-	if (reqList.size() > 1) {
+	//cout<<"run_evo(): capnLen = "<< capnLen<<endl;
+	vector<Request> testList = extrReqVector(capnStr, capnLen);
 
+	if (1 == testList.size() ) {
+
+
+	}else if(testList.size() > 1){
 		cout << "Multiple request received, not implemented yet." << endl;
 
-		return Const::ASC_REC_SUCC;
+				return Const::ASC_REC_SUCC;
+	}else{
+
 	}
 
-	cout<<"run_evo: opCode"<<reqList.at(0).opCode<<endl;
-	cout<<"run_evo: key"<<reqList.at(0).key<<endl;
-	cout<<"run_evo: val"<<reqList.at(0).val<<endl;
+
+	cout<<"run_evo: opCode = "<<testList.at(0).opCode<<endl;
+	cout<<"run_evo: key = "<<testList.at(0).key<<endl;
+	cout<<"run_evo: val = "<<testList.at(0).val<<endl;
+
+
+	return Const::ASC_REC_SUCC;
+}
+
+string HTWorker::evo_execute(Request req){
 
 	return Const::ASC_REC_SUCC;
 }

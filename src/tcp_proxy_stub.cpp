@@ -216,7 +216,7 @@ int TCPProxy::sendTo(int sock, const void* sendbuf, int sendcount) {
 int TCPProxy::sendTo(int sock, const void* sendbuf, int sendcount) {
 
 	int sentSize = ::send(sock, sendbuf, sendcount, 0);
-
+	cout <<"SML_MSG: sentSize = "<<sentSize<<endl;
 	//prompt errors
 	if (sentSize < sendcount) {
 

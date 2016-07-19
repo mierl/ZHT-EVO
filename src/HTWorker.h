@@ -76,7 +76,7 @@ public:
 
 public:
 	string run(const void *buf);
-
+	string evo_execute(Request req);//evo
 private:
 	string insert(const ZPack &zpack);
 	string lookup(const ZPack &zpack);
@@ -89,6 +89,11 @@ private:
 	string lookup_shared(const ZPack &zpack);
 	string append_shared(const ZPack &zpack);
 	string remove_shared(const ZPack &zpack);
+
+	////ZHT-EVO
+	string evo_put(string key, string val);
+	string evo_get(string key);
+	string evo_del(string key);
 
 private:
 	static void *threaded_state_change_callback(void *arg);

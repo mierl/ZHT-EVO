@@ -605,8 +605,9 @@ void EpollServer::serve() {
 									*edata->sender());
 							_eventQueue.push(eventData);
 #else
-							string bufstr(buf);
-							_ZProcessor->process(edata->fd(), bufstr.c_str(),
+							string bufstr((char*)buf, count);//string bufstr(buf) -> evo
+
+							_ZProcessor->process(edata->fd(), bufstr.data(),
 									*edata->sender());
 #endif
 #endif //SML_MSG

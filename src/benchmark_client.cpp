@@ -75,7 +75,7 @@ void init_packages() {
 	}
 }
 
-void init_packages_capn() {
+size_t init_packages_capn(void* &desBuf) {
 
 	numOfOps = 10;
 
@@ -97,21 +97,23 @@ void init_packages_capn() {
 	unsigned long strLen = 0;
 
 	msgToBuff(messageZU, capnStr, strLen);
+	desBuf = capnStr;
+	return strLen;
 
-	ZEMessage::Reader packReader = getZEMsgReader(capnStr, strLen);
-
-	void* tmp;
-	concatBuf(capnStr, strLen, tmp);
-
-	void* dst;
-	size_t newLen = splitBuf(tmp, dst);
-
-	vector<Request> rtList = extrReqVector(dst, newLen);
-
-	for (Request req : rtList) {
-		cout << "req.key = " << req.key << ", req.val = " << req.val
-				<< ", req.opCode = " << req.opCode << endl;
-	}
+//	ZEMessage::Reader packReader = getZEMsgReader(capnStr, strLen);
+//
+//	void* tmp;
+//	concatBuf(capnStr, strLen, tmp);
+//
+//	void* dst;
+//	size_t newLen = splitBuf(tmp, dst);
+//
+//	vector<Request> rtList = extrReqVector(dst, newLen);
+//
+//	for (Request req : rtList) {
+//		cout << "req.key = " << req.key << ", req.val = " << req.val
+//				<< ", req.opCode = " << req.opCode << endl;
+//	}
 
 }
 
@@ -270,7 +272,8 @@ float benchmarkRemove() {
 int benchmark(string &zhtConf, string &neighborConf) {
 
 	srand(getpid() + TimeUtil::getTime_usec());
-
+	//zc.initEvo(zhtConf, neighborConf, string(""), 1)
+	//zc.init(zhtConf, neighborConf)
 	if (zc.initEvo(zhtConf, neighborConf, string(""), 1) != 0) {
 
 		cout << "ZHTClient initialization failed, program exits." << endl;
@@ -296,35 +299,53 @@ int benchmark(string &zhtConf, string &neighborConf) {
 
 void printUsage(char *argv_0);
 
-void mapTest(){
+void myTest(){
 
-	const char* val = "value";
-	const char* key = "key";
+//	const char* val = "value";
+//	const char* key = "key";
+//
+//	void* buf;
+//	size_t len = 3;
+//	concatBuf((void*)key, len, buf);
+//
+//	size_t testLen = -1;
+//	void* dstBuf;
+//
+//	testLen = splitBuf(buf, dstBuf);
+//
+//	cout << "dstBuf = " <<(char*)dstBuf <<endl;
+//
+//	//cout << "buf + sizeof(size_t) = " << (char*)(buf+sizeof(size_t)) <<endl;
+//
+//	//cout << (char*) &buf[3] <<endl;
+//	free(buf);
 
-	void* buf;
-	size_t len = 3;
-	concatBuf((void*)key, len, buf);
+	void* capnStr;
+	size_t strLen = init_packages_capn(capnStr);
 
-	size_t testLen = -1;
-	void* dstBuf;
+	ZEMessage::Reader packReader = getZEMsgReader(capnStr, strLen);
 
-	testLen = splitBuf(buf, dstBuf);
+	void* tmp;
+	concatBuf(capnStr, strLen, tmp);
 
-	cout << "dstBuf = " <<(char*)dstBuf <<endl;
+	void* dst;
+	size_t newLen = splitBuf(tmp, dst);
 
-	cout << "buf + sizeof(size_t) = " << (char*)(buf+sizeof(size_t)) <<endl;
+	vector<Request> rtList = extrReqVector(dst, newLen);
 
-	//cout << (char*) &buf[3] <<endl;
-	free(buf);
+	for (Request req : rtList) {
+		cout << "req.key = " << req.key << ", req.val = " << req.val
+				<< ", req.opCode = " << req.opCode << endl;
+	}
 
 }
 
 int main(int argc, char **argv) {
 
-//	mapTest();
+//	myTest();
 //	return 0;
-	init_packages_capn();
-	return 0;
+//	init_packages_capn();
+//	return 0;
 	extern char *optarg;
 
 	int printHelp = 0;
