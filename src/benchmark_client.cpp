@@ -61,21 +61,27 @@ ZHTClient zc;
 int numOfOps = -1;
 int keyLen = 5;
 int valLen = 10;
-vector<string> pkgList;
+vector<Request> pkgList;
 
 void init_packages() {
 
 	for (int i = 0; i < numOfOps; i++) {
 
-		ZPack package;
-		package.set_key(HashUtil::randomString(keyLen));
-		package.set_val(HashUtil::randomString(valLen));
+		Request req;
+		req.key =HashUtil::randomString(keyLen);
+		//char* val = (char*)malloc(valLen*sizeof(char));
+		//memset(val, 'A', 1);
+		//memset(val, '-', valLen);
+		//memset(val+valLen-1, 'X', 1);
+		//string toVal = string(val);
 
-		pkgList.push_back(package.SerializeAsString());
+		req.val =HashUtil::randomString(valLen);
+
+		pkgList.push_back(req);
 	}
 }
 
-size_t init_packages_capn(void* &desBuf) {
+void init_packages_capn() {
 
 	numOfOps = 10;
 
@@ -85,7 +91,11 @@ size_t init_packages_capn(void* &desBuf) {
 
 		Request newReq;
 		newReq.key = string(HashUtil::randomString(keyLen));
-		newReq.val = string(HashUtil::randomString(valLen));
+		char* val = (char*)malloc(valLen*sizeof(char));
+		memset(val, 'A', 1);
+		memset(val+1, '-', valLen-2);
+		memset(val+valLen, 'X', 1);
+		newReq.val = string(val);
 		newReq.opCode = string("001");
 
 		reqList.push_back(newReq);
@@ -96,9 +106,9 @@ size_t init_packages_capn(void* &desBuf) {
 	void* capnStr = NULL;
 	unsigned long strLen = 0;
 
-	msgToBuff(messageZU, capnStr, strLen);
-	desBuf = capnStr;
-	return strLen;
+	//msgToBuff(messageZU, capnStr, strLen);
+	//desBuf = capnStr;
+	//return strLen;
 
 //	ZEMessage::Reader packReader = getZEMsgReader(capnStr, strLen);
 //
@@ -124,17 +134,14 @@ int benchmarkInsert() {
 	start = TimeUtil::getTime_msec();
 	int errCount = 0;
 
-	int c = 0;
-	vector<string>::iterator it;
-	for (it = pkgList.begin(); it != pkgList.end(); it++) {
+	vector<Request>::iterator it;
+	for (int i = 0; i<pkgList.size(); i++) {
 
-		c++;
+//		string pkg_str = *it;
+//		ZPack pkg;
+//		pkg.ParseFromString(pkg_str);
 
-		string pkg_str = *it;
-		ZPack pkg;
-		pkg.ParseFromString(pkg_str);
-
-		int ret = zc.insert(pkg.key(), pkg.val());
+		int ret = zc.insert(pkgList.at(i).key, pkgList.at(i).val);
 
 		if (ret < 0) {
 			errCount++;
@@ -153,8 +160,8 @@ int benchmarkInsert() {
 
 int benchmarkAppend() {
 
-	vector<string> pkgList_append = pkgList;
-
+	//vector<string> pkgList_append = pkgList;
+	vector<string> pkgList_append;
 	vector<string>::iterator it;
 	//for (it = pkgList.begin(); it != pkgList.end(); it++) {
 
@@ -204,19 +211,14 @@ float benchmarkLookup() {
 	start = TimeUtil::getTime_msec();
 	int errCount = 0;
 
-	int c = 0;
+
 	vector<string>::iterator it;
-	for (it = pkgList.begin(); it != pkgList.end(); it++) {
+	for (int i = 0; i<pkgList.size(); i++) {
 
 		string result;
-		c++;
-
-		string pkg_str = *it;
-		ZPack pkg;
-		pkg.ParseFromString(pkg_str);
-
-		int ret = zc.lookup(pkg.key(), result);
-		//cout << "Found result: "<< result << endl;
+		int ret = zc.lookup(pkgList.at(i).key, result);
+		cout << "Found result.size(): "<< result.size() << endl;
+		cout << "Found result = "<< result << endl;
 		if (ret < 0) {
 			errCount++;
 		} else if (result.empty()) { //empty string
@@ -241,18 +243,10 @@ float benchmarkRemove() {
 	start = TimeUtil::getTime_msec();
 	int errCount = 0;
 
-	int c = 0;
 	vector<string>::iterator it;
-	for (it = pkgList.begin(); it != pkgList.end(); it++) {
+	for (int i = 0; i<pkgList.size(); i++) {
 
-		string result;
-		c++;
-
-		string pkg_str = *it;
-		ZPack pkg;
-		pkg.ParseFromString(pkg_str);
-
-		int ret = zc.remove(pkg.key());
+		int ret = zc.remove(pkgList.at(i).key);
 
 		if (ret < 0) {
 			errCount++;
@@ -280,18 +274,18 @@ int benchmark(string &zhtConf, string &neighborConf) {
 		return -1;
 	}
 
-//	init_packages_capn();
+	//init_packages_capn();
 	init_packages();
 
 	benchmarkInsert();
 
-//	benchmarkLookup();
+	benchmarkLookup();
 
-	//benchmarkAppend();
+//	benchmarkAppend();
 
-	//benchmarkRemove();
+//	benchmarkRemove();
 //
-//	zc.teardown();
+	zc.teardown();
 
 	return 0;
 
@@ -321,7 +315,7 @@ void myTest(){
 //	free(buf);
 
 	void* capnStr;
-	size_t strLen = init_packages_capn(capnStr);
+	size_t strLen =0;//= init_packages_capn(capnStr);
 
 	ZEMessage::Reader packReader = getZEMsgReader(capnStr, strLen);
 

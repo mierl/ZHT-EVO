@@ -109,7 +109,6 @@ int ZHTClient::commonOp(const string &opcode, const string &key,
 		return Const::toInt(Const::ZSC_REC_UOPC);
 
 	string sstatus = commonOpInternal(opcode, key, val, val2, result, lease);
-
 	int status = Const::ZSI_REC_CLTFAIL;
 	if (!sstatus.empty())
 		status = Const::toInt(sstatus);
@@ -122,9 +121,9 @@ int ZHTClient::lookup(const string &key, string &result) {
 	string val;
 	string val2;
 	int rc = commonOp(Const::ZSC_OPC_LOOKUP, key, val, val2, result, 1);
-
-	result = extract_value(result);
-
+	cout<<"lookup() result.size() = "<<result.size()<<endl;
+	//result = extract_value(result); ??why?
+	//cout<<"extract_value() result = "<<result<<endl;
 	return rc;
 }
 
@@ -363,7 +362,7 @@ string ZHTClient::commonOpInternalOriginal(const string &opcode,
 }
 
 string ZHTClient::commonOpInternalEVO(const string &opcode, const string &key,
-		const string &val, string &result){
+		const string &val, string &result) {
 	//TODO:
 	//- Make a capn structure for a pack of requests and assign them: single request first
 	//- Make a void* buf from the structure.
@@ -374,15 +373,15 @@ string ZHTClient::commonOpInternalEVO(const string &opcode, const string &key,
 	req.opCode = opcode;
 	reqList.push_back(req);
 
-	void* tmpBuf=NULL;
+	void* tmpBuf = NULL;
 	size_t capnLen = -1;
 
 	::capnp::MallocMessageBuilder* builder = makeMsgPack(reqList);
 	msgToBuff(builder, tmpBuf, capnLen);
 
-	vector<Request> testList = extrReqVector(tmpBuf, capnLen);
-
-	cout<< "capnLen = "<<capnLen<<endl;
+//	vector<Request> testList = extrReqVector(tmpBuf, capnLen);
+//
+//	cout<< "capnLen = "<<capnLen<<endl;
 
 	void* sendBuf;
 
@@ -391,41 +390,65 @@ string ZHTClient::commonOpInternalEVO(const string &opcode, const string &key,
 	void* recvBuf = calloc(_msg_maxsize, sizeof(char));
 	size_t recvLen;
 
-	void* sBuf;
-	size_t tLen = splitBuf(sendBuf, sBuf);
+//	void* sBuf;
+//	size_t tLen = splitBuf(sendBuf, sBuf);
+//
+//	FILE * pFile;
+//	pFile = fopen ("clt.bin", "wb");
+//	fwrite (tmpBuf , capnLen , 1, pFile);
+//	fclose (pFile);
 
-	FILE * pFile;
-	pFile = fopen ("clt.bin", "wb");
-	fwrite (tmpBuf , capnLen , 1, pFile);
-	fclose (pFile);
-
-	_proxy->sendrecv(sendBuf, capnLen+sizeof(size_t), recvBuf, recvLen);
-
+	_proxy->sendrecv(sendBuf, capnLen + sizeof(size_t), recvBuf, recvLen);
+	cout<<"sendrecv: capnLen = "<<capnLen<<endl;
 	free(tmpBuf);
 	free(sendBuf);
 
-	result = Const::ASC_REC_SUCC;
+	string sstatus;
 
-	return Const::ASC_REC_SUCC;
+	if (recvLen <= 0) {
+
+		cout << "Fail to receive from server!" << endl;
+		return string("Error, return.");
+
+	}
+
+	string srecv((const char*) recvBuf, recvLen);
+	//cout<<"commonOpInternalEVO(): srecv = "<< srecv <<endl;
+	if (srecv.empty()) {
+
+		sstatus = Const::ZSC_REC_SRVEXP;
+
+	} else {
+
+		result = srecv.substr(3); //the left, if any, is lookup result or second-try zpack
+		sstatus = srecv.substr(0, 3); //status returned, the first three chars, like 001, -98...
+
+	}
+	//cout<<"ZHTClient::commonOpInternalEVO result = "<<result<<endl;
+	free(recvBuf);
+
+	return sstatus;
 
 }
 
 string ZHTClient::commonOpInternal(const string &opcode, const string &key,
 		const string &val, const string &val2, string &result, int lease) {
-
+	string ret;
 	if (0 == this->mode) {
 
-		cout<<"client mode = 0"<<endl;
-		return commonOpInternalOriginal(opcode, key, val, val2, result, lease);
+		//cout<<"client mode = 0"<<endl;
+		ret = commonOpInternalOriginal(opcode, key, val, val2, result, lease);
 
 	} else if (1 == this->mode) { //evo mode: single req
 
-		cout<<"client mode = 1, evo mode, single request!"<<endl;
-		return commonOpInternalEVO(opcode, key, val, result);
+		//cout<<"client mode = 1, evo mode, single request!"<<endl;
+		ret = commonOpInternalEVO(opcode, key, val, result);
 
 	}
 
-	return string("");
+	//cout<<"commonOpInternal() result = "<<result<<endl;
+
+	return ret;
 }
 
 int ZHTClient::teardown() {

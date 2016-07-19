@@ -77,40 +77,137 @@ HTWorker::HTWorker(const ProtoAddr& addr, const ProtoStub* const stub) :
 HTWorker::~HTWorker() {
 }
 
-string run_evo(const void *buf) {
-	cout<<"run_evo()..."<<endl;
+string HTWorker::run_evo(const void *buf) {
+	//cout << "run_evo()..." << endl;
 
 	void* capnStr;
-	size_t capnLen = 96;
-	printf("%s", (char*)buf);
+	size_t capnLen;
 	capnLen = splitBuf((void*) buf, capnStr);
 
 	//cout<<"run_evo(): capnLen = "<< capnLen<<endl;
-	vector<Request> testList = extrReqVector(capnStr, capnLen);
+	vector<Request> reqList = extrReqVector(capnStr, capnLen);
+	string result;
 
-	if (1 == testList.size() ) {
+	if (1 == reqList.size()) {
 
+		result = evo_execute(reqList.at(0));
 
-	}else if(testList.size() > 1){
+		//cout << "evo_execute(): " <<result<< endl;
+
+		return result;
+
+	} else if (reqList.size() > 1) {
+
 		cout << "Multiple request received, not implemented yet." << endl;
 
-				return Const::ASC_REC_SUCC;
-	}else{
+		return Const::ASC_REC_SUCC;
+
+	} else { //error.
 
 	}
 
-
-	cout<<"run_evo: opCode = "<<testList.at(0).opCode<<endl;
-	cout<<"run_evo: key = "<<testList.at(0).key<<endl;
-	cout<<"run_evo: val = "<<testList.at(0).val<<endl;
-
+	//cout << "run_evo: opCode = " << testList.at(0).opCode << endl;
+	//cout << "run_evo: key = " << testList.at(0).key << endl;
+	//cout << "run_evo: val = " << testList.at(0).val << endl;
 
 	return Const::ASC_REC_SUCC;
 }
 
-string HTWorker::evo_execute(Request req){
+string HTWorker::evo_execute(Request req) {
 
-	return Const::ASC_REC_SUCC;
+	if (!req.opCode.compare(Const::ZSC_OPC_INSERT)) {
+
+		return evo_put(req.key, req.val);
+
+	} else if (!req.opCode.compare(Const::ZSC_OPC_LOOKUP)) {
+
+		return evo_get(req.key);
+
+	} else if (!req.opCode.compare(Const::ZSC_OPC_REMOVE)) {
+
+		return evo_del(req.key);
+
+	} else {
+
+		return Const::ZSC_REC_UOPC;
+
+	}
+
+}
+
+string HTWorker::evo_put(string key, string val) {
+
+	string result;
+
+	int ret = PMAP->put(key, val);
+
+	if (ret != 0) {
+
+		printf("thread[%lu] DB Error: fail to insert, rcode = %d\n",
+				pthread_self(), ret);
+		fflush(stdout);
+
+		result = Const::ZSC_REC_NONEXISTKEY; //-92
+
+	} else {
+
+		result = Const::ZSC_REC_SUCC; //0, succeed.
+
+	}
+
+	return result;
+}
+
+string HTWorker::evo_get(string key) {
+	string result;
+
+	if (key.empty()) {
+		return Const::ZSC_REC_EMPTYKEY; //-1
+	}
+
+	string *ret = PMAP->get(key);
+	//cout << "get result = " << *ret << endl;
+	if (ret == NULL) {
+
+		printf("thread[%lu] DB Error: lookup found nothing\n", pthread_self());
+		fflush(stdout);
+
+		result = Const::ZSC_REC_NONEXISTKEY;
+		result.append("Empty");
+	} else {
+
+		result = Const::ZSC_REC_SUCC;
+		result.append(*ret);
+
+	}
+	//cout<<"get return result: "<<result<<endl;
+	return result;
+}
+
+string HTWorker::evo_del(string key) {
+	string result;
+
+	if (key.empty()) {
+		return Const::ZSC_REC_EMPTYKEY; //-1
+	}
+
+	int ret = PMAP->remove(key);
+
+	if (ret != 0) {
+
+		printf("thread[%lu] DB Error: fail to remove, rcode = %d\n",
+				pthread_self(), ret);
+		fflush(stdout);
+
+		result = Const::ZSC_REC_NONEXISTKEY; //-92
+
+	} else {
+
+		result = Const::ZSC_REC_SUCC; //0, succeed.
+
+	}
+
+	return result;
 }
 
 string HTWorker::run(const void *buf) {
@@ -118,7 +215,7 @@ string HTWorker::run(const void *buf) {
 	string result;
 
 #ifdef	EVO
-	return run_evo(buf);
+	result =  run_evo(buf);
 #else
 
 	//return	Const::ZSC_REC_SUCC; //blank test: do nothing and always return 0;
@@ -150,6 +247,7 @@ string HTWorker::run(const void *buf) {
 		result = Const::ZSC_REC_UOPC;
 	}
 #endif
+	//cout<<"run(): "<<result<<endl;
 	return result;
 }
 
@@ -459,15 +557,11 @@ string HTWorker::get_novoht_file() {
 
 void HTWorker::init_me() {
 
-#ifdef EVO
+	//EVO_MAP = NULL;
+	//EVO_MAP = new map<string, string>;
 
-	EVO_MAP = NULL;
-	EVO_MAP = new map<string, string>;
-
-#else
 	if (PMAP == NULL)
 	PMAP = new NoVoHT(get_novoht_file(), 100000, 10000, 0.7);
-#endif
 
 }
 

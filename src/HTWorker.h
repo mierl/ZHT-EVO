@@ -63,7 +63,7 @@ public:
  *
  */
 
-static map<string, string> * EVO_MAP; //ZHT-EVO temp map.
+//static map<string, string> * EVO_MAP; //ZHT-EVO temp map.
 
 class HTWorker {
 public:
@@ -76,7 +76,7 @@ public:
 
 public:
 	string run(const void *buf);
-	string evo_execute(Request req);//evo
+
 private:
 	string insert(const ZPack &zpack);
 	string lookup(const ZPack &zpack);
@@ -91,6 +91,8 @@ private:
 	string remove_shared(const ZPack &zpack);
 
 	////ZHT-EVO
+	string run_evo(const void *buf);
+	string evo_execute(Request req);//evo
 	string evo_put(string key, string val);
 	string evo_get(string key);
 	string evo_del(string key);

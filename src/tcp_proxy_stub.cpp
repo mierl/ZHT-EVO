@@ -196,7 +196,7 @@ int TCPProxy::sendTo(int sock, const void* sendbuf, int sendcount) {
 	string toSend = string((const char*)sendbuf, sendcount);//evo
 	BdSendBase *pbsb = new BdSendToServer(toSend);//evo
 	int sentSize = pbsb->bsend(sock);
-	cout<<"TCPProxy::sendTo(): sentSize = "<< sentSize<<endl;
+	//cout<<"TCPProxy::sendTo(): sentSize = "<< sentSize<<endl;
 	delete pbsb;
 	pbsb = NULL;
 
@@ -311,7 +311,7 @@ bool TCPStub::recvsend(ProtoAddr addr, const void *recvbuf) {
 
 	//send response to client over server sock fd
 	int sentsize = sendBack(addr, sendbuf, sendcount);
-	//cout<<"TCPStub::recvsend->sendBack: sentsize = "<<sentsize<<", sendbuf = "<< sendbuf<<endl;
+	//cout<<"TCPStub::recvsend->sendBack: sentsize = "<<sentsize<<", sendbuf = "<< (char*)sendbuf<<endl;
 	bool sent_bool = sentsize == sendcount;
 
 	return sent_bool;

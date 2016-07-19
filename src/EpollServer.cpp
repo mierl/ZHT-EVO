@@ -553,7 +553,7 @@ void EpollServer::serve() {
 						ssize_t count = recv(edata->fd(), buf, Env::BUF_SIZE, 0);
 						end = TimeUtil::getTime_msec();
 						//cout<<"Non-new, recv() "<<count <<" bytes cost "<< end - start <<" ms. edata->fd() = "<< edata->fd() <<", sfd = "<< sfd<<endl;
-						cout<<"Non-new, recv() "<<count <<" bytes"<<endl;
+						//cout<<"Non-new, recv() "<<count <<" bytes"<<endl;
 						if (count == -1) {
 
 							/* If errno == EAGAIN, that means we have read all
@@ -584,6 +584,10 @@ void EpollServer::serve() {
 							start = TimeUtil::getTime_msec();
 #ifdef BIG_MSG
 							bool ready = false;
+							size_t testLen = 0;
+							memcpy(&testLen, buf+38, sizeof(size_t));
+							cout<<"EpollServer: testLen = "<<testLen<<", recv count = "<<count<<endl;
+
 							string bd = pbrb->getBdStr(sfd, (const char*)buf, count, ready);
 
 							if (ready) {

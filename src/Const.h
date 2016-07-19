@@ -168,7 +168,7 @@ public:
 	static const string ZSC_OPC_CMPSWP; //compare and swap item
 	static const string ZSC_OPC_STCHGCB; //state change call back
 	static const string ZSC_OPC_BRDDN_GMEM; //broadcast global membership done
-	static const string ZSC_OPC_OPR_CANCEL; //cancle an operation
+	static const string ZSC_OPC_OPR_CANCEL; //cancel an operation
 	static const string ZSC_OPC_GET_ASNGHB; //get information of ZHTNode as a neighbor
 	static const string ZSC_OPC_BRD_GMEM; //broadcast global membership to zht, triggered by broadcast
 	static const string ZSC_OPC_GET_GMEM; //get global membership from zht
