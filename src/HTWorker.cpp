@@ -98,7 +98,7 @@ string HTWorker::run_evo(const void *buf) {
 
 	} else if (reqList.size() > 1) {
 
-		cout << "Multiple request received, not implemented yet." << endl;
+		cout << "Multiple requests received, not implemented yet." << endl;
 
 		return Const::ASC_REC_SUCC;
 

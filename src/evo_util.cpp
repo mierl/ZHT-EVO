@@ -118,7 +118,7 @@ int concatBuf(void* srcBuf, size_t srcLen, void* &dstBuf) {
 
 	memcpy(dstBuf, &len, sizeof(size_t));
 
-	memcpy(dstBuf + sizeof(size_t), srcBuf, len);
+	memcpy(((char*)dstBuf + sizeof(size_t)), srcBuf, len);
 
 	return 0;
 }
@@ -131,8 +131,8 @@ size_t splitBuf(void* srcBuf, void* &dstBuf) {
 
 	if (capnLen > 0) {
 		dstBuf = calloc(capnLen+1, sizeof(byte));
-		memcpy(dstBuf, srcBuf + sizeof(size_t), capnLen);
-		memset(dstBuf+capnLen, '\0', 1);
+		memcpy(dstBuf,((char*)srcBuf + sizeof(size_t)), capnLen);
+		memset(((char*)dstBuf+capnLen), '\0', 1);
 	}
 
 	return capnLen;

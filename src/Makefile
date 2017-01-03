@@ -1,7 +1,7 @@
-TARGETS = zht_ben zhtserver # most simplified TARGET for dev
+TARGETS = zht_ben zhtserver libzht.a# most simplified TARGET for dev
 #TARGETS = zht_ctest zht_cpptest zht_ben zhtserver libzht.a c_zhtclient_threaded_test cpp_zhtclient_threaded_test c_zhtclient_lanl_threaded
 CC = gcc #gcc
-CCFLAGS = -g -std=c++11 -I${USER_INCLUDE} -L${USER_LIB} -DPF_INET -DBIG_MSG -DSOCKET_CACHE -DSCCB -DTSQUEUE
+CCFLAGS = -g -std=c++11 -fPIC -I${USER_INCLUDE} -L${USER_LIB} -DPF_INET -DSOCKET_CACHE -DEVO -DBIG_MSG #-DSCCB -DTSQUEUE -DSML_MSG #added -fPIC
 #CCFLAGS = -g -I${USER_INCLUDE} -L${USER_LIB} -DTHREADED_SERVE -DPF_INET -DBIG_MSG -DSOCKET_CACHE -DSCCB -DTSQUEUE 
 MPIFLAGS = -g -I${USER_INCLUDE} -L${USER_LIB} -DMPI_INET
 LIBFLAGS = -lstdc++ -lrt -lpthread -lm -lc -lprotobuf -lprotobuf-c  -lcapnp -lkj
@@ -55,7 +55,7 @@ zht_ben: benchmark_client.o lock_guard.o cpp_zhtclient.o   lru_cache.o   zpack.p
 Const.o ConfHandler.o ConfEntry.o \
 ProxyStubFactory.o proxy_stub.o ip_proxy_stub.o mq_proxy_stub.o ipc_plus.o tcp_proxy_stub.o udp_proxy_stub.o \
 ZHTUtil.o Env.o Util.o \
-HTWorker.o StrTokenizer.o TSafeQueue.o zht_evo.capnp.o
+HTWorker.o StrTokenizer.o TSafeQueue.o zht_evo.capnp.o evo_util.o
 	$(CC) $(CCFLAGS) -o $@ $^ $(LIBFLAGS)
 
 
@@ -63,7 +63,7 @@ zhtserver: ZHTServer.o lock_guard.o   lru_cache.o   zpack.pb.o novoht.o bigdata_
 Const.o ConfHandler.o ConfEntry.o \
 ProxyStubFactory.o proxy_stub.o ip_proxy_stub.o mq_proxy_stub.o ipc_plus.o tcp_proxy_stub.o udp_proxy_stub.o \
 ZHTUtil.o Env.o Util.o StrTokenizer.o\
-EpollServer.o ZProcessor.o ip_server.o HTWorker.o StrTokenizer.o TSafeQueue.o zht_evo.capnp.o
+EpollServer.o ZProcessor.o ip_server.o HTWorker.o StrTokenizer.o TSafeQueue.o zht_evo.capnp.o evo_util.o
 	$(CC) $(CCFLAGS) -o $@ $^ $(LIBFLAGS)
 
 

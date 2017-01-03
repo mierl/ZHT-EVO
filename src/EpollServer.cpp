@@ -585,7 +585,7 @@ void EpollServer::serve() {
 #ifdef BIG_MSG
 							bool ready = false;
 							size_t testLen = 0;
-							memcpy(&testLen, buf+38, sizeof(size_t));
+							memcpy(&testLen, ((char*)buf+38), sizeof(size_t));
 							cout<<"EpollServer: testLen = "<<testLen<<", recv count = "<<count<<endl;
 
 							string bd = pbrb->getBdStr(sfd, (const char*)buf, count, ready);
